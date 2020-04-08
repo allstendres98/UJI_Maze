@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
+import es.uji.vj1229.framework.Graphics;
 import es.uji.vj1229.framework.IGameController;
 import es.uji.vj1229.framework.TouchHandler;
 
@@ -12,11 +13,13 @@ public class Controller implements IGameController {
     public int width, height;
     public Context context;
     public Model model;
+    public Graphics graphics;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
         this.height = height;
         this.context = context;
+        //graphics.drawBitmap(,this.width,this.height);
     }
 
     @Override

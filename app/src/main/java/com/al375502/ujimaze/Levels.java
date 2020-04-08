@@ -1,0 +1,16 @@
+package com.al375502.ujimaze;
+
+import com.al375502.ujimaze.mazeUtils.Maze;
+
+public class Levels {
+    /*private static final String[][] templates;
+    public static final Maze mazes[];
+    static {
+        mazes = new Maze[templates.length];
+        int i = 0;
+        for (String[] template: templates) {
+            mazes[i++] = new Maze(template);
+        }
+    }*/
+
+}
