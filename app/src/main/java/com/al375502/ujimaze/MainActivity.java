@@ -3,14 +3,17 @@ package com.al375502.ujimaze;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 
-public class MainActivity extends AppCompatActivity {
+import es.uji.vj1229.framework.GameActivity;
+import es.uji.vj1229.framework.IGameController;
+
+public class MainActivity extends GameActivity{
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        //primer commit prueba
+    protected IGameController buildGameController() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        return new Controller(displayMetrics.widthPixels, displayMetrics.heightPixels, getApplicationContext());
     }
 }
