@@ -2,7 +2,10 @@ package com.al375502.ujimaze;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.Log;
+
+import com.al375502.ujimaze.mazeUtils.Maze;
 
 import java.util.List;
 
@@ -109,10 +112,45 @@ public class Controller implements IGameController {
 
     private void drawMaze(){
         float halfLineWidth = 0.5f * lineWidth;
+        String[] mazeString = new String[]{
+                "+-+-+-+-+-+-+-+",
+                "| |     |     |",
+                "+ + +-+ +   +-+",
+                "|        O    |",
+                "+     +     + +",
+                "|     |     | |",
+                "+ +-+ + + + + +",
+                "|       | |   |",
+                "+      -+ +  -+",
+                "|             |",
+                "+-+ + + +-+   +",
+                "|   |X|       |",
+                "+   +-+ +   + +",
+                "|       |   | |",
+                "+-+-+-+-+-+-+-+"};
+        Maze maze = new Maze(mazeString);
+        /*for(int i = 0; i < maze.getNRows(); i++)
+            for(int j = 0; j < maze.getNCols(); j++)
+            {
+                /*if(maze.hasWall(i,j, Direction.DOWN) && i+1<=maze.getNRows()) graphics.drawLine(cellX[i], cellY[j], cellX[i+1], cellY[j], lineWidth, LINE_COLOR);
+                if(maze.hasWall(i,j, Direction.UP) && i-1>0) graphics.drawLine(cellX[i], cellY[j], cellX[i-1], cellY[j], lineWidth, LINE_COLOR);
+                if(maze.hasWall(i,j, Direction.LEFT) && j-1>0) graphics.drawLine(cellX[i], cellY[j], cellX[i], cellY[j-1], lineWidth, LINE_COLOR);
+                if(maze.hasWall(i,j, Direction.RIGHT)&& j+1<=maze.getNCols()) graphics.drawLine(cellX[i], cellY[j], cellX[i], cellY[j+1], lineWidth, LINE_COLOR);
+            }*/
 
-        graphics.drawLine(cellX[0], cellY[0], cellX[7], cellY[0], lineWidth, LINE_COLOR);
+        /*graphics.drawLine(cellX[0], cellY[0], cellX[7], cellY[0], lineWidth, LINE_COLOR);
         graphics.drawLine(cellX[0] , cellY[0], cellX[0], cellY[7], lineWidth, LINE_COLOR);
         graphics.drawLine(cellX[0] , cellY[7], cellX[7], cellY[7], lineWidth, LINE_COLOR);
-        graphics.drawLine(cellX[7] , cellY[0], cellX[7], cellY[7], lineWidth, LINE_COLOR);
+        graphics.drawLine(cellX[7] , cellY[0], cellX[7], cellY[7], lineWidth, LINE_COLOR);*/
+
+        for(int i = 0; i < mazeString.length; i++)
+        {
+            char[] row = mazeString[i].toCharArray();
+            for(int j = 1; j < row.length-1; j++)
+            {
+                //if(Character.toString(row[j]).equals("-")) graphics.drawLine(cellX[Math.floorDiv(j-1,2)], cellY[Math.floorDiv(i,2)], cellX[Math.floorDiv(j+1,2)], cellY[Math.floorDiv(i,2)], lineWidth, LINE_COLOR);
+            }
+        }
+
     }
 }
