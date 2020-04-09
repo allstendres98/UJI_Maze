@@ -31,7 +31,7 @@ public class Assets {
     public static Drawable undo;
     public static Drawable help;
 
-    public static void createAssets(Context context, int playerSide)
+    public static void createPlayerAssets(Context context, int playerSide)
     {
         Resources resources = context.getResources();
         //Define player variables
@@ -49,6 +49,15 @@ public class Assets {
         playerLeft = players.getScaledSprite(1, 0, playerSide, playerSide);
         playerRight = players.getScaledSprite(2, 0, playerSide, playerSide);
 
+        //Define buttons variables
+        if(reset == null) reset = context.getDrawable(R.drawable.reset);
+        if(undo == null) undo = context.getDrawable(R.drawable.undo);
+        if(help == null) help = context.getDrawable(R.drawable.help);
+    }
+
+    public static void createTargetAssets(Context context, int playerSide)
+    {
+        Resources resources = context.getResources();
         //Define target variables
         if(targetSprites != null) targetSprites.recycle();
         targetSprites = BitmapFactory.decodeResource(resources,R.drawable.target);
@@ -63,10 +72,5 @@ public class Assets {
         target1 = targets.getScaledSprite(0, 1, playerSide, playerSide);
         target2 = targets.getScaledSprite(0, 2, playerSide, playerSide);
         target3 = targets.getScaledSprite(0, 3, playerSide, playerSide);
-
-        //Define buttons variables
-        if(reset == null) reset = context.getDrawable(R.drawable.reset);
-        if(undo == null) undo = context.getDrawable(R.drawable.undo);
-        if(help == null) help = context.getDrawable(R.drawable.help);
     }
 }
