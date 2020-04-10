@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 
+import com.al375502.ujimaze.mazeUtils.Direction;
 import com.al375502.ujimaze.mazeUtils.Maze;
 import com.al375502.ujimaze.mazeUtils.Position;
 
@@ -34,7 +35,9 @@ public class Controller implements IGameController {
     public float xreset, yreset, xundo, yundo, xhelp, yhelp;
     public float[] cellX, cellY;
     public int lineWidth;
-    public Levels levelsList;
+    float x0 = 0, y0 = 0;
+    boolean tocando = false;
+    Direction directionToGo;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -43,6 +46,7 @@ public class Controller implements IGameController {
         playerSide = (int) (width * CELL_FRACTION);
         lineWidth = (int) (width * LINEWIDTH_FRACTION);
         configureGraphicsParameters(width,height);
+        model = new Model(cellX,cellY);
         Assets.createPlayerAssets(context,playerSide);
         Assets.createTargetAssets(context,playerSide);
         graphics = new Graphics(this.width, this.height);
@@ -50,25 +54,62 @@ public class Controller implements IGameController {
 
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
+        Log.d("moving", model.playerIsMoving+"");
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
-                if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE)
-                    Log.d("pressed", "reset");
+                if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
+                    model.resetMaze();
+                }
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
-                    Log.d("pressed", "undo");
+                    model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
-                    Log.d("pressed", "help");
+                    //Log.d("pressed", "help");
                 } else {
+                    if(!model.playerIsMoving) {
+                        float y1 = event.y, x1 = event.x;
+                        //Log.d("pressed", "x0: " + x0 + " y0: " + y0 + " x1: " + x1 + " y1: " + y1);
+                        if (x0 < x1 && y0 < y1) {
+                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                directionToGo = Direction.RIGHT;
+                            else directionToGo = Direction.DOWN;
+                        }
 
+                        if (x0 > x1 && y0 < y1) {
+                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                directionToGo = Direction.LEFT;
+                            else directionToGo = Direction.DOWN;
+                        }
+
+                        if (x0 < x1 && y0 > y1) {
+                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                directionToGo = Direction.RIGHT;
+                            else directionToGo = Direction.UP;
+                        }
+
+                        if (x0 > x1 && y0 > y1) {
+                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                directionToGo = Direction.LEFT;
+                            else directionToGo = Direction.UP;
+                        }
+                        model.calculateNextPosition(directionToGo);
+                    }
+                }
+                tocando = false;
+            }
+
+            if(event.type == TouchHandler.TouchType.TOUCH_DOWN)
+            {
+                if(!tocando)
+                {
+                    tocando=true;
+                    x0 = event.x;
+                    y0 = event.y;
+                    //Log.d("pressed", "x0: " + x0 + " y0: " + y0);
                 }
             }
 
-            if(event.type == TouchHandler.TouchType.TOUCH_DRAGGED && deltaTime > 0.1)
-            {
-                
-            }
-
         }
+        if(model.playerIsMoving) model.startMovingDirection(directionToGo, deltaTime);
     }
 
     @Override
@@ -76,7 +117,12 @@ public class Controller implements IGameController {
         graphics.clear(BACKGROUND_COLOR);
         drawAssets();
         drawMaze();
+        drawPlayer();
         return graphics.getFrameBuffer();
+    }
+
+    private void drawPlayer() {
+        graphics.drawBitmap(Assets.playerDown,model.playerCurrentPositionX,model.playerCurrentPositionY);
     }
 
     public void configureGraphicsParameters(int width, int height)
@@ -91,7 +137,6 @@ public class Controller implements IGameController {
         for (int i = 0; i < 7; i++){
             cellX[i] = xoffset + i*step;
             cellY[i] = yoffset + i*step;
-            //Log.d("Cell", cellX[i] + " " + cellY[i]);
         }
         cellX[7] = width-xoffset;
         cellY[7] = height-yoffset;
@@ -112,7 +157,7 @@ public class Controller implements IGameController {
     }
 
     private void drawMaze(){
-        Maze maze = Levels.mazes[1];
+        Maze maze = Levels.mazes[model.getCurrentMaze()];
         for(int i = 0; i < maze.getNRows(); i++)
             for(int j = maze.getNCols(); j >= 0; j--) {
                 graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
@@ -139,7 +184,6 @@ public class Controller implements IGameController {
         }
 
         Position[] targets = maze.getTargets().toArray(new Position[0]);
-        graphics.drawBitmap(Assets.playerDown,cellX[maze.getOrigin().getCol()],cellY[maze.getOrigin().getRow()]);
-        graphics.drawBitmap(Assets.target0,cellX[targets[0].getCol()],cellY[targets[0].getRow()]);
+        for(int i = 0; i < targets.length; i++) graphics.drawBitmap(Assets.target0,cellX[targets[i].getCol()],cellY[targets[i].getRow()]);
     }
 }
