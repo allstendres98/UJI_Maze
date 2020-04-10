@@ -14,11 +14,12 @@ import es.uji.vj1229.framework.IGameController;
 import es.uji.vj1229.framework.TouchHandler;
 
 public class Controller implements IGameController {
-    private static final float MARGIN_FRACTION = 0.1f;
-    private static final float LINEWIDTH_FRACTION = 0.02f;
+    private static final float MARGIN_FRACTION = 0.08f;
+    private static final float LINEWIDTH_FRACTION = 0.01f;
     private static final float CELL_FRACTION = (1 - 2 * MARGIN_FRACTION - 2 * LINEWIDTH_FRACTION)/7;
     private static final int BACKGROUND_COLOR = 0xff9ffccf;
     private static final int LINE_COLOR = 0xff000000;
+    private static final int SUBLINE_COLOR = 0xffb8b8b8;
     private static final int BUTTON_SIZE = 80;
 
     public int playerSide;
@@ -38,8 +39,8 @@ public class Controller implements IGameController {
         playerSide = (int) (width * CELL_FRACTION);
         lineWidth = (int) (width * LINEWIDTH_FRACTION);
         configureGraphicsParameters(width,height);
-        Assets.createPlayerAssets(context,playerSide*3);
-        Assets.createTargetAssets(context,playerSide*2);
+        Assets.createPlayerAssets(context,playerSide);
+        Assets.createTargetAssets(context,playerSide);
         graphics = new Graphics(this.width, this.height);
     }
 
@@ -72,10 +73,10 @@ public class Controller implements IGameController {
 
     public void configureGraphicsParameters(int width, int height)
     {
-        xoffset = (width - 7 * playerSide - 2 * lineWidth) / 2;
-        yoffset = (height - 7 * playerSide - 2 * lineWidth) / 2;
+        xoffset = (width - 7 * playerSide - 2*lineWidth) / 2;
+        yoffset = (height - 7 * playerSide - 2*lineWidth) / 2;
 
-        float step = playerSide + lineWidth;
+        float step = playerSide + lineWidth/3.5f;
         cellX = new float[8];
         cellY = new float[8];
 
@@ -84,8 +85,8 @@ public class Controller implements IGameController {
             cellY[i] = yoffset + i*step;
             //Log.d("Cell", cellX[i] + " " + cellY[i]);
         }
-        cellX[7] = xoffset + 7*playerSide + 2*lineWidth;
-        cellY[7] = yoffset + 7*playerSide + 2*lineWidth;
+        cellX[7] = width-xoffset;
+        cellY[7] = height-yoffset;
 
         xhelp = width/2+width/6;
         yhelp = height/2-height/2.5f;
@@ -99,8 +100,9 @@ public class Controller implements IGameController {
         //for(int row = 0; row < 7; row++)
           //  for(int col = 0; col < 7; col++)
                 //graphics.drawBitmap(Assets.playerLeft,cellX[row],cellY[col]);
-        /*graphics.drawBitmap(Assets.playerDown,0,0);
-        graphics.drawBitmap(Assets.playerLeft,0,0);
+        graphics.drawBitmap(Assets.playerDown,cellX[0],cellY[0]);
+        graphics.drawBitmap(Assets.target0,cellX[0],cellY[4]);
+        /*graphics.drawBitmap(Assets.playerLeft,0,0);
         graphics.drawBitmap(Assets.playerRight,0,0);
         graphics.drawBitmap(Assets.playerUp,0,0);*/
 
@@ -138,17 +140,33 @@ public class Controller implements IGameController {
                 if(maze.hasWall(i,j, Direction.RIGHT)&& j+1<=maze.getNCols()) graphics.drawLine(cellX[i], cellY[j], cellX[i], cellY[j+1], lineWidth, LINE_COLOR);
             }*/
 
-        /*graphics.drawLine(cellX[0], cellY[0], cellX[7], cellY[0], lineWidth, LINE_COLOR);
-        graphics.drawLine(cellX[0] , cellY[0], cellX[0], cellY[7], lineWidth, LINE_COLOR);
-        graphics.drawLine(cellX[0] , cellY[7], cellX[7], cellY[7], lineWidth, LINE_COLOR);
-        graphics.drawLine(cellX[7] , cellY[0], cellX[7], cellY[7], lineWidth, LINE_COLOR);*/
+        for(int i = 0; i < maze.getNRows(); i++)
+            for(int j = maze.getNCols(); j >= 0; j--) {
+                graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
+                graphics.drawLine(cellX[i], cellY[i], cellX[i], cellY[j], lineWidth, SUBLINE_COLOR);
+                graphics.drawLine(cellX[i], cellY[j], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
+                graphics.drawLine(cellX[j], cellY[i], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
+            }
 
         for(int i = 0; i < mazeString.length; i++)
         {
             char[] row = mazeString[i].toCharArray();
             for(int j = 1; j < row.length-1; j++)
             {
-                //if(Character.toString(row[j]).equals("-")) graphics.drawLine(cellX[Math.floorDiv(j-1,2)], cellY[Math.floorDiv(i,2)], cellX[Math.floorDiv(j+1,2)], cellY[Math.floorDiv(i,2)], lineWidth, LINE_COLOR);
+                if(Character.toString(row[j]).equals("-")){
+                    graphics.drawLine(cellX[(j-1)/2], cellY[i/2], cellX[(j+1)/2], cellY[i/2], lineWidth, LINE_COLOR);
+                }
+            }
+        }
+
+        for(int i = 0; i < mazeString.length; i++)
+        {
+            char[] row = mazeString[i].toCharArray();
+            for(int j = 0; j < row.length; j++)
+            {
+                if(Character.toString(row[j]).equals("|")){
+                    graphics.drawLine(cellX[j/2], cellY[(i-1)/2], cellX[j/2], cellY[(i+1)/2], lineWidth, LINE_COLOR);
+                }
             }
         }
 
