@@ -6,8 +6,11 @@ import android.os.Build;
 import android.util.Log;
 
 import com.al375502.ujimaze.mazeUtils.Maze;
+import com.al375502.ujimaze.mazeUtils.Position;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import es.uji.vj1229.framework.Graphics;
 import es.uji.vj1229.framework.IGameController;
@@ -31,6 +34,7 @@ public class Controller implements IGameController {
     public float xreset, yreset, xundo, yundo, xhelp, yhelp;
     public float[] cellX, cellY;
     public int lineWidth;
+    public Levels levelsList;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -46,21 +50,25 @@ public class Controller implements IGameController {
 
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
-        for(TouchHandler.TouchEvent event : touchEvents)
-            if(event.type == TouchHandler.TouchType.TOUCH_UP){
-                if(xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE)
-                    //aqui iria para reiniciar la partida
-                    Log.d("press:", "reset");
-                else if(xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE){
-                    Log.d("press:", "undo");
-                }
-                else if(xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE){
-                    Log.d("press:", "help");
-                }
-                else{
-                    //todo lo del movimiento
+        for(TouchHandler.TouchEvent event : touchEvents) {
+            if (event.type == TouchHandler.TouchType.TOUCH_UP) {
+                if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE)
+                    Log.d("pressed", "reset");
+                else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
+                    Log.d("pressed", "undo");
+                } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
+                    Log.d("pressed", "help");
+                } else {
+
                 }
             }
+
+            if(event.type == TouchHandler.TouchType.TOUCH_DRAGGED && deltaTime > 0.1)
+            {
+                
+            }
+
+        }
     }
 
     @Override
@@ -97,15 +105,6 @@ public class Controller implements IGameController {
     }
 
     private void drawAssets(){
-        //for(int row = 0; row < 7; row++)
-          //  for(int col = 0; col < 7; col++)
-                //graphics.drawBitmap(Assets.playerLeft,cellX[row],cellY[col]);
-        graphics.drawBitmap(Assets.playerDown,cellX[0],cellY[0]);
-        graphics.drawBitmap(Assets.target0,cellX[0],cellY[4]);
-        /*graphics.drawBitmap(Assets.playerLeft,0,0);
-        graphics.drawBitmap(Assets.playerRight,0,0);
-        graphics.drawBitmap(Assets.playerUp,0,0);*/
-
         graphics.drawDrawable(Assets.help,xhelp,yhelp,BUTTON_SIZE,BUTTON_SIZE);
         graphics.drawDrawable(Assets.reset,xreset, yreset,BUTTON_SIZE,BUTTON_SIZE);
         graphics.drawDrawable(Assets.undo,xundo,yundo,BUTTON_SIZE,BUTTON_SIZE);
@@ -113,33 +112,7 @@ public class Controller implements IGameController {
     }
 
     private void drawMaze(){
-        float halfLineWidth = 0.5f * lineWidth;
-        String[] mazeString = new String[]{
-                "+-+-+-+-+-+-+-+",
-                "| |     |     |",
-                "+ + +-+ +   +-+",
-                "|        O    |",
-                "+     +     + +",
-                "|     |     | |",
-                "+ +-+ + + + + +",
-                "|       | |   |",
-                "+      -+ +  -+",
-                "|             |",
-                "+-+ + + +-+   +",
-                "|   |X|       |",
-                "+   +-+ +   + +",
-                "|       |   | |",
-                "+-+-+-+-+-+-+-+"};
-        Maze maze = new Maze(mazeString);
-        /*for(int i = 0; i < maze.getNRows(); i++)
-            for(int j = 0; j < maze.getNCols(); j++)
-            {
-                /*if(maze.hasWall(i,j, Direction.DOWN) && i+1<=maze.getNRows()) graphics.drawLine(cellX[i], cellY[j], cellX[i+1], cellY[j], lineWidth, LINE_COLOR);
-                if(maze.hasWall(i,j, Direction.UP) && i-1>0) graphics.drawLine(cellX[i], cellY[j], cellX[i-1], cellY[j], lineWidth, LINE_COLOR);
-                if(maze.hasWall(i,j, Direction.LEFT) && j-1>0) graphics.drawLine(cellX[i], cellY[j], cellX[i], cellY[j-1], lineWidth, LINE_COLOR);
-                if(maze.hasWall(i,j, Direction.RIGHT)&& j+1<=maze.getNCols()) graphics.drawLine(cellX[i], cellY[j], cellX[i], cellY[j+1], lineWidth, LINE_COLOR);
-            }*/
-
+        Maze maze = Levels.mazes[1];
         for(int i = 0; i < maze.getNRows(); i++)
             for(int j = maze.getNCols(); j >= 0; j--) {
                 graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
@@ -148,27 +121,25 @@ public class Controller implements IGameController {
                 graphics.drawLine(cellX[j], cellY[i], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
             }
 
-        for(int i = 0; i < mazeString.length; i++)
+        char[] row = maze.toString().toCharArray();
+        int cont = 0;
+        int aux = 0;
+        for(int i = 0; i < maze.toString().length(); i++,aux++)
         {
-            char[] row = mazeString[i].toCharArray();
-            for(int j = 1; j < row.length-1; j++)
-            {
-                if(Character.toString(row[j]).equals("-")){
-                    graphics.drawLine(cellX[(j-1)/2], cellY[i/2], cellX[(j+1)/2], cellY[i/2], lineWidth, LINE_COLOR);
-                }
+            if(Character.toString(row[i]).equals("-")){
+                graphics.drawLine(cellX[(aux-1)/2], cellY[cont/2], cellX[(aux+1)/2], cellY[cont/2], lineWidth, LINE_COLOR);
+            }
+            else if(Character.toString(row[i]).equals("|")){
+                graphics.drawLine(cellX[aux/2], cellY[(cont-1)/2], cellX[aux/2], cellY[(cont+1)/2], lineWidth, LINE_COLOR);
+            }
+            else if(Character.toString(row[i]).equals("\n")){
+                cont++;
+                aux = 0;
             }
         }
 
-        for(int i = 0; i < mazeString.length; i++)
-        {
-            char[] row = mazeString[i].toCharArray();
-            for(int j = 0; j < row.length; j++)
-            {
-                if(Character.toString(row[j]).equals("|")){
-                    graphics.drawLine(cellX[j/2], cellY[(i-1)/2], cellX[j/2], cellY[(i+1)/2], lineWidth, LINE_COLOR);
-                }
-            }
-        }
-
+        Position[] targets = maze.getTargets().toArray(new Position[0]);
+        graphics.drawBitmap(Assets.playerDown,cellX[maze.getOrigin().getCol()],cellY[maze.getOrigin().getRow()]);
+        graphics.drawBitmap(Assets.target0,cellX[targets[0].getCol()],cellY[targets[0].getRow()]);
     }
 }

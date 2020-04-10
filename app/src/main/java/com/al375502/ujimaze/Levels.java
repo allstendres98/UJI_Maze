@@ -3,7 +3,59 @@ package com.al375502.ujimaze;
 import com.al375502.ujimaze.mazeUtils.Maze;
 
 public class Levels {
-    /*private static final String[][] templates;
+    private static final String[][] templates = new String[][]{
+            {
+                    "+-+-+-+-+-+-+-+",
+                    "|   |       | |",
+                    "+ +-+     + +-+",
+                    "|     |   |   |",
+                    "+-+   +-+ +   +",
+                    "|     | |     |",
+                    "+   +-+ + +-+ +",
+                    "|    X|O    | |",
+                    "+ +-+ +     + +",
+                    "| |         | |",
+                    "+ +   +-+-+ + +",
+                    "|     |       |",
+                    "+-+   + +   + +",
+                    "| |     |   | |",
+                    "+-+-+-+-+-+-+-+"
+            },
+            {
+                    "+-+-+-+-+-+-+-+",
+                    "|         |   |",
+                    "+-+ + +-+-+   +",
+                    "|   |      X  |",
+                    "+   +-+   +-+ +",
+                    "|           | |",
+                    "+     +-+   + +",
+                    "|  O    |     |",
+                    "+-+ +   +-+   +",
+                    "|   |         |",
+                    "+   +   +   +-+",
+                    "|       |   | |",
+                    "+ +-+   + +-+ +",
+                    "|   |         |",
+                    "+-+-+-+-+-+-+-+"
+            },
+            {
+                    "+-+-+-+-+-+-+-+",
+                    "| |     |     |",
+                    "+ + +-+ +   +-+",
+                    "|        O    |",
+                    "+     +     + +",
+                    "|     |     | |",
+                    "+ +-+ + + + + +",
+                    "|       | |   |",
+                    "+      -+ +  -+",
+                    "|             |",
+                    "+-+ + + +-+   +",
+                    "|   |X|       |",
+                    "+   +-+ +   + +",
+                    "|       |   | |",
+                    "+-+-+-+-+-+-+-+"
+            }
+    };
     public static final Maze mazes[];
     static {
         mazes = new Maze[templates.length];
@@ -11,6 +63,6 @@ public class Levels {
         for (String[] template: templates) {
             mazes[i++] = new Maze(template);
         }
-    }*/
+    }
 
 }
