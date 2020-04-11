@@ -8,6 +8,12 @@ import com.al375502.ujimaze.mazeUtils.Direction;
 import com.al375502.ujimaze.mazeUtils.Maze;
 import com.al375502.ujimaze.mazeUtils.Position;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 public class Model {
@@ -17,10 +23,14 @@ public float playerCurrentPositionX;
 public float playerCurrentPositionY;
 public Position playerCurrentPosition;
 public Position playerNextPosition = new Position(0,0);
+public Position[] targets;
+public int numTargets;
+public boolean[] targetsCollected;
 private Stack<Position> playerPreviousPosition = new Stack<>();
+public Hashtable<Integer,Position> targetsCollectedInAFinalPosition = new Hashtable<Integer, Position>();
 
-private int currentMazeIndex = 0;
-private int speed = 400;
+private int currentMazeIndex = 1;
+private int speed = 600;
 private float[] cellX;
 private float[] cellY;
 
@@ -30,6 +40,10 @@ private float[] cellY;
         playerCurrentPosition = new Position(Levels.mazes[getCurrentMaze()].getOrigin());
         playerCurrentPositionX = cellX[playerCurrentPosition.getCol()];
         playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
+        targets = Levels.mazes[getCurrentMaze()].getTargets().toArray(new Position[0]);
+        numTargets = targets.length;
+        targetsCollected = new boolean[numTargets];
+        for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
     }
 
 public void resetMaze(){
@@ -38,10 +52,28 @@ public void resetMaze(){
     playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
     while(!playerPreviousPosition.empty()) playerPreviousPosition.pop();
     //resetear targets
+    targetsCollectedInAFinalPosition.clear();
+    targets = Levels.mazes[getCurrentMaze()].getTargets().toArray(new Position[0]);
+    numTargets = targets.length;
+    targetsCollected = new boolean[numTargets];
+    for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
 }
 public void goToPreviousPosition(){
         if(!playerPreviousPosition.empty())
         {
+            if(!targetsCollectedInAFinalPosition.isEmpty())
+            {
+                Set<Integer> keys = targetsCollectedInAFinalPosition.keySet();
+                for (Integer key : keys) {
+                    Position value = targetsCollectedInAFinalPosition.get(key);
+                    if(value == playerPreviousPosition.peek())
+                    {
+                        numTargets++;
+                        targetsCollected[key] = false;
+                        targetsCollectedInAFinalPosition.remove(key);
+                    }
+                }
+            }
             playerCurrentPosition = playerPreviousPosition.pop();
             playerCurrentPositionX = cellX[playerCurrentPosition.getCol()];
             playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
@@ -49,11 +81,28 @@ public void goToPreviousPosition(){
         }
 }
 public int getCurrentMaze(){ return currentMazeIndex; }
-public void moveNextMaze(){ currentMazeIndex++; }
-public void getTargetPosition(){}
+public void moveNextMaze(){ currentMazeIndex++; resetMaze();}
+public void getTargetPosition(){
+
+}
 
 public void startMovingDirection(Direction direction, float deltaTime){
     if(playerIsMoving) {
+        Range<Integer> x1 = new Range<Integer>(Math.round(playerCurrentPositionX)-5, Math.round(playerCurrentPositionX)+5);
+        Range<Integer> y1 = new Range<Integer>(Math.round(playerCurrentPositionY)-5, Math.round(playerCurrentPositionY)+5);
+        for(int i = 0; i < targets.length; i++)
+        {
+            if(x1.contains(Math.round(cellX[targets[i].getCol()])) && y1.contains(Math.round(cellY[targets[i].getRow()])))
+            {
+                if(targetsCollected[i] == false) {
+                    targetsCollectedInAFinalPosition.put(i, playerCurrentPosition);
+                    targetsCollected[i] = true;
+                    numTargets--;
+                    if(numTargets == 0) moveNextMaze();
+                }
+            }
+        }
+
         Range<Integer> x = new Range<Integer>(Math.round(playerCurrentPositionX)-10, Math.round(playerCurrentPositionX)+10);
         Range<Integer> y = new Range<Integer>(Math.round(playerCurrentPositionY)-10, Math.round(playerCurrentPositionY)+10);
 
@@ -70,6 +119,7 @@ public void startMovingDirection(Direction direction, float deltaTime){
         }
     }
 }
+
 public void playerReachTarget(){}
 
 public void calculateNextPosition(Direction direction) {

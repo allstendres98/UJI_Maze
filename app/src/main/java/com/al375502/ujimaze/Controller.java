@@ -46,15 +46,15 @@ public class Controller implements IGameController {
         playerSide = (int) (width * CELL_FRACTION);
         lineWidth = (int) (width * LINEWIDTH_FRACTION);
         configureGraphicsParameters(width,height);
-        model = new Model(cellX,cellY);
         Assets.createPlayerAssets(context,playerSide);
         Assets.createTargetAssets(context,playerSide);
         graphics = new Graphics(this.width, this.height);
+        model = new Model(cellX,cellY);
     }
 
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
-        Log.d("moving", model.playerIsMoving+"");
+        Log.d("targets", model.targetsCollectedInAFinalPosition+"");
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
@@ -116,8 +116,8 @@ public class Controller implements IGameController {
     public Bitmap onDrawingRequested() {
         graphics.clear(BACKGROUND_COLOR);
         drawAssets();
-        drawMaze();
         drawPlayer();
+        drawMaze();
         return graphics.getFrameBuffer();
     }
 
@@ -182,8 +182,10 @@ public class Controller implements IGameController {
                 aux = 0;
             }
         }
-
-        Position[] targets = maze.getTargets().toArray(new Position[0]);
-        for(int i = 0; i < targets.length; i++) graphics.drawBitmap(Assets.target0,cellX[targets[i].getCol()],cellY[targets[i].getRow()]);
+        for(int i = 0; i < model.targets.length; i++)
+        {
+            if(!model.targetsCollected[i]) graphics.drawBitmap(Assets.target0,cellX[model.targets[i].getCol()],cellY[model.targets[i].getRow()]);
+            else graphics.drawBitmap(Assets.target0,-900,-900);
+        }
     }
 }
