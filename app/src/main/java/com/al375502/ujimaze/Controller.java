@@ -1,10 +1,13 @@
 package com.al375502.ujimaze;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.media.SoundPool.Builder;
@@ -33,7 +36,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private static final int BACKGROUND_COLOR = 0xff9ffccf;
     private static final int LINE_COLOR = 0xff000000;
     private static final int SUBLINE_COLOR = 0xffb8b8b8;
-    private static final int BUTTON_SIZE = 80;
+    
 
     public int playerSide;
     public int width, height;
@@ -55,6 +58,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private int AllTargetsCollected;
     private int TouchWall;
     private int Reset;
+    private float BUTTON_SIZE;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -78,6 +82,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
         mediaPlayer.setVolume(0.1f,0.1f);
     }
 
+
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
         //Log.d("targets", "");
@@ -87,7 +92,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
                     model.touchResetButton();
                 }
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
-                    model.goToPreviousPosition();
+                    if(!model.playerIsMoving) model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
                     //Log.d("pressed", "help");
                 } else {
@@ -182,6 +187,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
         yundo = height/2-height/2.5f;
         xreset = width/2-width/10;
         yreset = height/2-height/2.5f;
+        BUTTON_SIZE = playerSide*1.5f;
     }
 
     private void drawAssets(){
