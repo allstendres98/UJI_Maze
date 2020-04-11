@@ -1,14 +1,23 @@
 package com.al375502.ujimaze;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.media.SoundPool.Builder;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.al375502.ujimaze.mazeUtils.Direction;
 import com.al375502.ujimaze.mazeUtils.Maze;
 import com.al375502.ujimaze.mazeUtils.Position;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +26,7 @@ import es.uji.vj1229.framework.Graphics;
 import es.uji.vj1229.framework.IGameController;
 import es.uji.vj1229.framework.TouchHandler;
 
-public class Controller implements IGameController {
+public class Controller implements IGameController, Model.SoundPlayer {
     private static final float MARGIN_FRACTION = 0.08f;
     private static final float LINEWIDTH_FRACTION = 0.01f;
     private static final float CELL_FRACTION = (1 - 2 * MARGIN_FRACTION - 2 * LINEWIDTH_FRACTION)/7;
@@ -38,11 +47,20 @@ public class Controller implements IGameController {
     float x0 = 0, y0 = 0;
     boolean tocando = false;
     Direction directionToGo;
+    //Music
+    private SoundPool soundPool;
+    private MediaPlayer mediaPlayer;
+    private int Move;
+    private int TargetCollected;
+    private int AllTargetsCollected;
+    private int TouchWall;
+    private int Reset;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
         this.height = height;
         this.context = context;
+        prepareSoundPool(context);
         playerSide = (int) (width * CELL_FRACTION);
         lineWidth = (int) (width * LINEWIDTH_FRACTION);
         configureGraphicsParameters(width,height);
@@ -50,7 +68,14 @@ public class Controller implements IGameController {
         Assets.createTargetAssets(context,playerSide);
         Assets.createWallsAssets(context,playerSide);
         graphics = new Graphics(this.width, this.height);
-        model = new Model(cellX,cellY);
+        prepareMediaPlayer();
+        model = new Model(cellX,cellY,this, mediaPlayer);
+    }
+
+    private void prepareMediaPlayer() {
+        mediaPlayer = MediaPlayer.create(context, R.raw.background_music);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.setVolume(0.1f,0.1f);
     }
 
     @Override
@@ -59,7 +84,7 @@ public class Controller implements IGameController {
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
-                    model.resetMaze();
+                    model.touchResetButton();
                 }
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
                     model.goToPreviousPosition();
@@ -168,13 +193,13 @@ public class Controller implements IGameController {
 
     private void drawMaze(){
         Maze maze = Levels.mazes[model.getCurrentMaze()];
-        for(int i = 0; i < maze.getNRows(); i++)
+        /*for(int i = 0; i < maze.getNRows(); i++)
             for(int j = maze.getNCols(); j >= 0; j--) {
                 graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
                 graphics.drawLine(cellX[i], cellY[i], cellX[i], cellY[j], lineWidth, SUBLINE_COLOR);
                 graphics.drawLine(cellX[i], cellY[j], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
                 graphics.drawLine(cellX[j], cellY[i], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
-            }
+            }*/
 
         char[] row = maze.toString().toCharArray();
         int cont = 0;
@@ -228,7 +253,53 @@ public class Controller implements IGameController {
 
 
         }
-        
+
          */
+    }
+
+    private void prepareSoundPool(Context context){
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+
+        soundPool = new SoundPool.Builder().setMaxStreams(5).setAudioAttributes(attributes).build();
+        Move = soundPool.load(context, R.raw.move, 0);
+        TargetCollected = soundPool.load(context, R.raw.target_collected, 0);
+        AllTargetsCollected = soundPool.load(context, R.raw.all_targets_collected, 0);
+        TouchWall = soundPool.load(context, R.raw.touch_wall, 0);
+        Reset = soundPool.load(context, R.raw.reset, 0);
+    }
+
+    @Override
+    public void playMove() {
+        soundPool.stop(Move);
+        soundPool.play(Move, 50f, 50f, 0, 0, 0);
+    }
+
+    @Override
+    public void stopMoving() {
+        soundPool.stop(Move);
+    }
+
+    @Override
+    public void playTargetCollected() {
+        soundPool.play(TargetCollected, 5f, 5f, 0, 0, 1);
+    }
+
+    @Override
+    public void playAllTargetsCollected() {
+        soundPool.play(AllTargetsCollected, 5f, 5f, 0, 0, 1);
+    }
+
+    @Override
+    public void playTouchWall() {
+        soundPool.play(TouchWall, 80f, 80f, 10, 0, 0);
+    }
+
+    @Override
+    public void playReset() {
+        soundPool.stop(Reset);
+        soundPool.play(Reset, 5f, 5f, 0, 0, 0);
     }
 }

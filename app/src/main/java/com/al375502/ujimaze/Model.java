@@ -1,6 +1,7 @@
 package com.al375502.ujimaze;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Range;
@@ -36,17 +37,40 @@ private int speed = 200;
 private float[] cellX;
 private float[] cellY;
 
-    public Model(float[] cellX, float[] cellY) {
+
+    public interface SoundPlayer{
+        void playMove();
+        void stopMoving();
+        void playTargetCollected();
+        void playAllTargetsCollected();
+        void playTouchWall();
+        void playReset();
+    }
+
+    private SoundPlayer soundPlayer;
+
+    public Model(float[] cellX, float[] cellY, SoundPlayer soundPlayer, MediaPlayer mediaPlayer) {
         this.cellX = cellX;
         this.cellY = cellY;
+        playerIsMoving=false;
         playerCurrentPosition = new Position(Levels.mazes[getCurrentMaze()].getOrigin());
         playerCurrentPositionX = cellX[playerCurrentPosition.getCol()];
         playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
+        while(!playerPreviousPosition.empty()) playerPreviousPosition.pop();
+        movementsCount = 0;
         targets = Levels.mazes[getCurrentMaze()].getTargets().toArray(new Position[0]);
         numTargets = targets.length;
+        targetsCollectedMovement = new Integer[numTargets];
         targetsCollected = new boolean[numTargets];
         for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
-        targetsCollectedMovement = new Integer[numTargets];
+        this.soundPlayer = soundPlayer;
+        mediaPlayer.start();
+    }
+
+    public void touchResetButton()
+    {
+        resetMaze();
+        soundPlayer.playReset();
     }
 
 public void resetMaze(){
@@ -81,10 +105,7 @@ public void goToPreviousPosition(){
         }
 }
 public int getCurrentMaze(){ return currentMazeIndex; }
-public void moveNextMaze(){ currentMazeIndex++; resetMaze();}
-public void getTargetPosition(){
-
-}
+public void moveNextMaze(){ soundPlayer.playAllTargetsCollected(); currentMazeIndex++; resetMaze();}
 
 public void startMovingDirection(Direction direction, float deltaTime){
     if(playerIsMoving) {
@@ -98,6 +119,8 @@ public void startMovingDirection(Direction direction, float deltaTime){
             playerCurrentPosition.setCol(playerNextPosition.getCol());
             playerCurrentPosition.setRow(playerNextPosition.getRow());
             playerIsMoving = false;
+            soundPlayer.playTouchWall();
+            soundPlayer.stopMoving();
         }
         else {
             playerCurrentPositionX += direction.getCol() * deltaTime * speed;
@@ -113,6 +136,7 @@ public void startMovingDirection(Direction direction, float deltaTime){
                 if(targetsCollected[i] == false) {
                     targetsCollectedMovement[i] = movementsCount;
                     targetsCollected[i] = true;
+                    if(numTargets != 1) soundPlayer.playTargetCollected();
                     numTargets--;
                     if(numTargets == 0) moveNextMaze();
                 }
@@ -121,11 +145,10 @@ public void startMovingDirection(Direction direction, float deltaTime){
     }
 }
 
-public void playerReachTarget(){}
-
 public void calculateNextPosition(Direction direction) {
-        if(Levels.mazes[getCurrentMaze()].hasWall(playerCurrentPosition,direction)) return;
+        if(Levels.mazes[getCurrentMaze()].hasWall(playerCurrentPosition,direction)) {soundPlayer.playTouchWall(); return;}
         else {
+            soundPlayer.playMove();
             movementsCount++;
             playerPreviousPosition.push(new Position(playerCurrentPosition.getRow(), playerCurrentPosition.getCol()));
             while (!Levels.mazes[getCurrentMaze()].hasWall(playerCurrentPosition, direction) && !playerIsMoving) {
