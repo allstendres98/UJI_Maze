@@ -67,7 +67,7 @@ public void goToPreviousPosition(){
         {
            for(int i = 0; i<targetsCollectedMovement.length;i++)
                 {
-                    if(targetsCollectedMovement[i]!= null &&targetsCollectedMovement[i] == movementsCount) {
+                    if(targetsCollectedMovement[i]!= null && targetsCollectedMovement[i] == movementsCount) {
                         numTargets++;
                         targetsCollected[i] = false;
                         targetsCollectedMovement[i] = -1;

@@ -31,6 +31,24 @@ public class Assets {
     public static Drawable undo;
     public static Drawable help;
 
+    public static Bitmap wallsSprites;
+    public static SpriteSheet walls;
+    public static Bitmap[] wallsBitmaps = new Bitmap[15];
+
+    public static void createWallsAssets(Context context, int playerSide)
+    {
+        Resources resources = context.getResources();
+        //Define player variables
+        if(wallsSprites != null) wallsSprites.recycle();
+        wallsSprites = BitmapFactory.decodeResource(resources,R.drawable.walls);
+        walls = new SpriteSheet(wallsSprites, PLAYER_SIDE/2, PLAYER_SIDE/2);
+
+        for(int i = 0; i < wallsBitmaps; i++)
+        {
+            if(wallsBitmaps[i] != null) wallsBitmaps[i].recycle();
+        }
+    }
+
     public static void createPlayerAssets(Context context, int playerSide)
     {
         Resources resources = context.getResources();

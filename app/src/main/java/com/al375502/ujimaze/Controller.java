@@ -116,9 +116,18 @@ public class Controller implements IGameController {
     public Bitmap onDrawingRequested() {
         graphics.clear(BACKGROUND_COLOR);
         drawAssets();
-        drawPlayer();
         drawMaze();
+        drawPlayer();
+        drawTargets();
         return graphics.getFrameBuffer();
+    }
+
+    private void drawTargets() {
+        for(int i = 0; i < model.targets.length; i++)
+        {
+            if(!model.targetsCollected[i]) graphics.drawBitmap(Assets.target0,cellX[model.targets[i].getCol()],cellY[model.targets[i].getRow()]);
+            //else graphics.drawBitmap(Assets.target0,-900,-900);
+        }
     }
 
     private void drawPlayer() {
@@ -181,11 +190,6 @@ public class Controller implements IGameController {
                 cont++;
                 aux = 0;
             }
-        }
-        for(int i = 0; i < model.targets.length; i++)
-        {
-            if(!model.targetsCollected[i]) graphics.drawBitmap(Assets.target0,cellX[model.targets[i].getCol()],cellY[model.targets[i].getRow()]);
-            else graphics.drawBitmap(Assets.target0,-900,-900);
         }
     }
 }
