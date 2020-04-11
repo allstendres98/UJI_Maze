@@ -41,11 +41,12 @@ public class Assets {
         //Define player variables
         if(wallsSprites != null) wallsSprites.recycle();
         wallsSprites = BitmapFactory.decodeResource(resources,R.drawable.walls);
-        walls = new SpriteSheet(wallsSprites, PLAYER_SIDE/2, PLAYER_SIDE/2);
+        walls = new SpriteSheet(wallsSprites, 32, 32);
 
-        for(int i = 0; i < wallsBitmaps; i++)
+        for(int i = 0; i < wallsBitmaps.length; i++)
         {
             if(wallsBitmaps[i] != null) wallsBitmaps[i].recycle();
+            wallsBitmaps[i] = walls.getScaledSprite(0, i, playerSide, playerSide);
         }
     }
 

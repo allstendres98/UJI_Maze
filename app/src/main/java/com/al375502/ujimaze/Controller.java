@@ -48,6 +48,7 @@ public class Controller implements IGameController {
         configureGraphicsParameters(width,height);
         Assets.createPlayerAssets(context,playerSide);
         Assets.createTargetAssets(context,playerSide);
+        Assets.createWallsAssets(context,playerSide);
         graphics = new Graphics(this.width, this.height);
         model = new Model(cellX,cellY);
     }
@@ -191,5 +192,43 @@ public class Controller implements IGameController {
                 aux = 0;
             }
         }
+        /*
+        char[] row = maze.toString().toCharArray();
+        int toPaint = 0;
+        int cont = 0;
+        int aux = 0;
+        for(int i = 15; i < maze.toString().length(); i++, aux++)
+        {
+            if(!Character.toString(row[i]).equals(" ")) {
+                if (Character.toString(row[i]).equals("+")) {
+                    if (Character.toString(row[i - 1]).equals("-"))
+                    {
+                        toPaint = 13;
+                        //if()
+                    }
+                }
+                else if (Character.toString(row[i]).equals("-"))
+                {
+                    toPaint = 1;
+                    //if()
+                }
+                else if (Character.toString(row[i]).equals("|"))
+                {
+                    toPaint = 0;
+                    //if()
+                }
+                else if(Character.toString(row[i]).equals("\n")){
+                    cont++;
+                    aux = 0;
+                }
+                graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)], cellY[Math.round(cont/2)]);
+
+
+            }
+
+
+        }
+        
+         */
     }
 }
