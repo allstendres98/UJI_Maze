@@ -54,7 +54,7 @@ public class Controller implements IGameController {
 
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
-        Log.d("targets", model.targetsCollectedInAFinalPosition+"");
+        //Log.d("targets", "");
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {

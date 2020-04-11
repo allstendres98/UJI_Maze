@@ -2,6 +2,7 @@ package com.al375502.ujimaze;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Range;
 
 import com.al375502.ujimaze.mazeUtils.Direction;
@@ -27,9 +28,10 @@ public Position[] targets;
 public int numTargets;
 public boolean[] targetsCollected;
 private Stack<Position> playerPreviousPosition = new Stack<>();
-public Hashtable<Integer,Position> targetsCollectedInAFinalPosition = new Hashtable<Integer, Position>();
+public int movementsCount = 0;
+public Integer[] targetsCollectedMovement;
 
-private int currentMazeIndex = 1;
+private int currentMazeIndex = 0;
 private int speed = 600;
 private float[] cellX;
 private float[] cellY;
@@ -44,36 +46,34 @@ private float[] cellY;
         numTargets = targets.length;
         targetsCollected = new boolean[numTargets];
         for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
+        targetsCollectedMovement = new Integer[numTargets];
     }
 
 public void resetMaze(){
+        playerIsMoving=false;
     playerCurrentPosition = new Position(Levels.mazes[getCurrentMaze()].getOrigin());
     playerCurrentPositionX = cellX[playerCurrentPosition.getCol()];
     playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
     while(!playerPreviousPosition.empty()) playerPreviousPosition.pop();
-    //resetear targets
-    targetsCollectedInAFinalPosition.clear();
+    movementsCount = 0;
     targets = Levels.mazes[getCurrentMaze()].getTargets().toArray(new Position[0]);
     numTargets = targets.length;
+    targetsCollectedMovement = new Integer[numTargets];
     targetsCollected = new boolean[numTargets];
     for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
 }
 public void goToPreviousPosition(){
         if(!playerPreviousPosition.empty())
         {
-            if(!targetsCollectedInAFinalPosition.isEmpty())
-            {
-                Set<Integer> keys = targetsCollectedInAFinalPosition.keySet();
-                for (Integer key : keys) {
-                    Position value = targetsCollectedInAFinalPosition.get(key);
-                    if(value == playerPreviousPosition.peek())
-                    {
+           for(int i = 0; i<targetsCollectedMovement.length;i++)
+                {
+                    if(targetsCollectedMovement[i]!= null &&targetsCollectedMovement[i] == movementsCount) {
                         numTargets++;
-                        targetsCollected[key] = false;
-                        targetsCollectedInAFinalPosition.remove(key);
+                        targetsCollected[i] = false;
+                        targetsCollectedMovement[i] = -1;
                     }
                 }
-            }
+            movementsCount--;
             playerCurrentPosition = playerPreviousPosition.pop();
             playerCurrentPositionX = cellX[playerCurrentPosition.getCol()];
             playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
@@ -88,20 +88,6 @@ public void getTargetPosition(){
 
 public void startMovingDirection(Direction direction, float deltaTime){
     if(playerIsMoving) {
-        Range<Integer> x1 = new Range<Integer>(Math.round(playerCurrentPositionX)-5, Math.round(playerCurrentPositionX)+5);
-        Range<Integer> y1 = new Range<Integer>(Math.round(playerCurrentPositionY)-5, Math.round(playerCurrentPositionY)+5);
-        for(int i = 0; i < targets.length; i++)
-        {
-            if(x1.contains(Math.round(cellX[targets[i].getCol()])) && y1.contains(Math.round(cellY[targets[i].getRow()])))
-            {
-                if(targetsCollected[i] == false) {
-                    targetsCollectedInAFinalPosition.put(i, playerCurrentPosition);
-                    targetsCollected[i] = true;
-                    numTargets--;
-                    if(numTargets == 0) moveNextMaze();
-                }
-            }
-        }
 
         Range<Integer> x = new Range<Integer>(Math.round(playerCurrentPositionX)-10, Math.round(playerCurrentPositionX)+10);
         Range<Integer> y = new Range<Integer>(Math.round(playerCurrentPositionY)-10, Math.round(playerCurrentPositionY)+10);
@@ -117,6 +103,21 @@ public void startMovingDirection(Direction direction, float deltaTime){
             playerCurrentPositionX += direction.getCol() * deltaTime * speed;
             playerCurrentPositionY += direction.getRow() * deltaTime * speed;
         }
+
+        Range<Integer> x1 = new Range<Integer>(Math.round(playerCurrentPositionX)-7, Math.round(playerCurrentPositionX)+7);
+        Range<Integer> y1 = new Range<Integer>(Math.round(playerCurrentPositionY)-7, Math.round(playerCurrentPositionY)+7);
+        for(int i = 0; i < targets.length; i++)
+        {
+            if(x1.contains(Math.round(cellX[targets[i].getCol()])) && y1.contains(Math.round(cellY[targets[i].getRow()])))
+            {
+                if(targetsCollected[i] == false) {
+                    targetsCollectedMovement[i] = movementsCount;
+                    targetsCollected[i] = true;
+                    numTargets--;
+                    if(numTargets == 0) moveNextMaze();
+                }
+            }
+        }
     }
 }
 
@@ -125,6 +126,7 @@ public void playerReachTarget(){}
 public void calculateNextPosition(Direction direction) {
         if(Levels.mazes[getCurrentMaze()].hasWall(playerCurrentPosition,direction)) return;
         else {
+            movementsCount++;
             playerPreviousPosition.push(new Position(playerCurrentPosition.getRow(), playerCurrentPosition.getCol()));
             while (!Levels.mazes[getCurrentMaze()].hasWall(playerCurrentPosition, direction) && !playerIsMoving) {
                 playerNextPosition.setCol(playerCurrentPosition.getCol() + direction.getCol());
