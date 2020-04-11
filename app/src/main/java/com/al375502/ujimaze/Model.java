@@ -32,7 +32,7 @@ public int movementsCount = 0;
 public Integer[] targetsCollectedMovement;
 
 private int currentMazeIndex = 0;
-private int speed = 600;
+private int speed = 200;
 private float[] cellX;
 private float[] cellY;
 
