@@ -37,6 +37,29 @@ public class Assets {
     public static Bitmap playerLeft3;
     public static Bitmap playerRight3;
 
+    public static Bitmap enemieUp0;
+    public static Bitmap enemieUp1;
+    public static Bitmap enemieUp2;
+    public static Bitmap enemieUp3;
+
+    public static Bitmap enemieDown0;
+    public static Bitmap enemieDown1;
+    public static Bitmap enemieDown2;
+    public static Bitmap enemieDown3;
+
+    public static Bitmap enemieLeft0;
+    public static Bitmap enemieLeft1;
+    public static Bitmap enemieLeft2;
+    public static Bitmap enemieLeft3;
+
+    public static Bitmap enemieRight0;
+    public static Bitmap enemieRight1;
+    public static Bitmap enemieRight2;
+    public static Bitmap enemieRight3;
+
+    public static Bitmap enemieSprites;
+    public static SpriteSheet enemies;
+
     public static Bitmap target0;
     public static Bitmap target1;
     public static Bitmap target2;
@@ -158,5 +181,54 @@ public class Assets {
         if(grass != null) grass.recycle();
 
         grass = grassSpriteSheet.getScaledSprite(0,0,playerSide+lineWidth,playerSide+lineWidth);
+    }
+
+    public static void createEnemiesAssets(Context context, int playerSide)
+    {
+        Resources resources = context.getResources();
+        //Define player variables
+        if(enemieSprites != null) enemieSprites.recycle();
+        enemieSprites = BitmapFactory.decodeResource(resources,R.drawable.enemie);
+        enemies = new SpriteSheet(enemieSprites, PLAYER_SIDE, PLAYER_SIDE);
+
+        if(enemieDown0 != null) enemieDown0.recycle();
+        if(enemieDown1 != null) enemieDown1.recycle();
+        if(enemieDown2 != null) enemieDown2.recycle();
+        if(enemieDown3 != null) enemieDown3.recycle();
+
+        if(enemieUp0 != null) enemieUp0.recycle();
+        if(enemieUp1 != null) enemieUp1.recycle();
+        if(enemieUp2 != null) enemieUp2.recycle();
+        if(enemieUp3 != null) enemieUp3.recycle();
+
+        if(enemieLeft0 != null) enemieLeft0.recycle();
+        if(enemieLeft1 != null) enemieLeft1.recycle();
+        if(enemieLeft2 != null) enemieLeft2.recycle();
+        if(enemieLeft3 != null) enemieLeft3.recycle();
+
+        if(enemieRight0 != null) enemieRight0.recycle();
+        if(enemieRight1 != null) enemieRight1.recycle();
+        if(enemieRight2 != null) enemieRight2.recycle();
+        if(enemieRight3 != null) enemieRight3.recycle();
+
+        enemieDown0 = enemies.getScaledSprite(0, 0, playerSide, playerSide);
+        enemieDown1 = enemies.getScaledSprite(0, 1, playerSide, playerSide);
+        enemieDown2 = enemies.getScaledSprite(0, 2, playerSide, playerSide);
+        enemieDown3 = enemies.getScaledSprite(0, 3, playerSide, playerSide);
+
+        enemieLeft0 = enemies.getScaledSprite(1, 0, playerSide, playerSide);
+        enemieLeft1 = enemies.getScaledSprite(1, 1, playerSide, playerSide);
+        enemieLeft2 = enemies.getScaledSprite(1, 2, playerSide, playerSide);
+        enemieLeft3 = enemies.getScaledSprite(1, 3, playerSide, playerSide);
+
+        enemieRight0 = enemies.getScaledSprite(2, 0, playerSide, playerSide);
+        enemieRight1 = enemies.getScaledSprite(2, 1, playerSide, playerSide);
+        enemieRight2 = enemies.getScaledSprite(2, 2, playerSide, playerSide);
+        enemieRight3 = enemies.getScaledSprite(2, 3, playerSide, playerSide);
+
+        enemieUp0 = enemies.getScaledSprite(3, 0, playerSide, playerSide);
+        enemieUp1 = enemies.getScaledSprite(3, 1, playerSide, playerSide);
+        enemieUp2 = enemies.getScaledSprite(3, 2, playerSide, playerSide);
+        enemieUp3 = enemies.getScaledSprite(3, 3, playerSide, playerSide);
     }
 }

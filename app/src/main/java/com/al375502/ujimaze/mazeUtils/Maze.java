@@ -26,9 +26,12 @@ public class Maze {
      */
     public static final char TARGET = 'X';
 
+    public static final char ENEMY = 'E';
+
     private final boolean walls[][][];
     private final Position origin;
     private final Set<Position> targets;
+    private final Set<Position> enemies;
 
     /**
      * <p>The constructor.</p>
@@ -68,6 +71,7 @@ public class Maze {
         Position origin = null;
 
         targets = new HashSet<>();
+        enemies = new HashSet<>();
 
         for (int row = 0 ; row < nrows ; row++) {
             String previous = diagram[2*row];
@@ -79,6 +83,8 @@ public class Maze {
                     origin = new Position(row, col);
                 if (current.charAt(realCol) == TARGET)
                     targets.add(new Position(row, col));
+                if (current.charAt(realCol) == ENEMY)
+                    enemies.add(new Position(row, col));
                 walls[row][col][UP.ordinal()] = previous.charAt(realCol) != ' ';
                 walls[row][col][DOWN.ordinal()] = next.charAt(realCol) != ' ';
                 walls[row][col][LEFT.ordinal()] = current.charAt(realCol - 1) != ' ';
@@ -103,6 +109,9 @@ public class Maze {
      */
     public Collection<Position> getTargets() {
         return targets;
+    }
+    public Collection<Position> getEnemies() {
+        return enemies;
     }
 
     /**
@@ -151,6 +160,7 @@ public class Maze {
                 builder.append(hasWall(position, LEFT) ? '|' : ' ');
                 builder.append(origin.equals(position) ? ORIGIN :
                         targets.contains(position) ? TARGET :
+                        enemies.contains(position) ? ENEMY :
                         ' '
                 );
             }

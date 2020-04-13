@@ -26,16 +26,47 @@ public float playerCurrentPositionY;
 public Position playerCurrentPosition;
 public Position playerNextPosition = new Position(0,0);
 public Position[] targets;
+
 public int numTargets;
 public boolean[] targetsCollected;
-private Stack<Position> playerPreviousPosition = new Stack<>();
+
+    private Stack<Position> playerPreviousPosition = new Stack<>();
 public int movementsCount = 0;
 public Integer[] targetsCollectedMovement;
+    public Position[] enemies;
+    public Direction[] enemieDirectionToGo;
+    public Position[] enemieCurrentPosition;
+    public float[] enemieX;
+    public float[] enemieY;
+    public Position[]positionToChange;
+    public boolean[] isChanging;
 
 private int currentMazeIndex = 0;
 private int speed = 200;
 private float[] cellX;
 private float[] cellY;
+
+    /*public void Dijsktra() {
+        boolean targetReached = false;
+        Position theoricPosition = playerCurrentPosition;
+        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        while(!targetReached)
+        {
+            Position[] newPositions = {theoricPosition, theoricPosition, theoricPosition, theoricPosition};
+            int[] cont = new int[];
+            for(int i = 0; i < 4; i++)
+            {
+                while(!Levels.mazes[getCurrentMaze()].hasWall(newPositions[i], directions[i]))
+                {
+                    cont[i]++;
+                    newPositions[i].setRow(newPositions[i].getRow()+directions[i].getRow());
+                    newPositions[i].setCol(newPositions[i].getCol()+directions[i].getCol());
+
+                }
+
+            }
+        }
+    }*/
 
 
     public interface SoundPlayer{
@@ -65,6 +96,21 @@ private float[] cellY;
         for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
         this.soundPlayer = soundPlayer;
         mediaPlayer.start();
+        enemies = Levels.mazes[getCurrentMaze()].getEnemies().toArray(new Position[0]);
+        enemieDirectionToGo = new Direction[enemies.length];
+        enemieCurrentPosition = new Position[enemies.length];
+        enemieY = new float[enemies.length];
+        enemieX = new float[enemies.length];
+        isChanging = new boolean[enemies.length];
+        for(int i = 0; i < enemies.length; i++){
+            enemieCurrentPosition[i] = enemies[i];
+            enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+            enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+            defineEnemieDirection(i);
+            isChanging[i] = true;
+        }
+        positionToChange = enemieCurrentPosition;
+
     }
 
     public void touchResetButton()
@@ -85,8 +131,24 @@ public void resetMaze(){
     targetsCollectedMovement = new Integer[numTargets];
     targetsCollected = new boolean[numTargets];
     for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
+    enemies = Levels.mazes[getCurrentMaze()].getEnemies().toArray(new Position[0]);
+    for(int i = 0; i < enemies.length; i++){
+        enemieCurrentPosition[i] = enemies[i];
+        enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+        enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+        defineEnemieDirection(i);
+        isChanging[i] = true;
+    }
 }
-public void goToPreviousPosition(){
+
+    private void defineEnemieDirection(int i) {
+        if(currentMazeIndex == 0) {
+            enemieDirectionToGo[i] = Direction.UP;
+        }
+        else enemieDirectionToGo[i] = Direction.RIGHT;
+    }
+
+    public void goToPreviousPosition(){
         if(!playerPreviousPosition.empty())
         {
            for(int i = 0; i<targetsCollectedMovement.length;i++)
@@ -159,4 +221,41 @@ public void calculateNextPosition(Direction direction) {
             playerIsMoving = true;
         }
     }
+
+
+public void moveEnemies(float deltaTime)
+{
+   for(int i = 0; i < enemies.length; i++)
+       {
+           while (!Levels.mazes[getCurrentMaze()].hasWall(enemieCurrentPosition[i], enemieDirectionToGo[i]) && isChanging[i])
+           {
+               positionToChange[i].setCol(enemieCurrentPosition[i].getCol() + enemieDirectionToGo[i].getCol());
+               positionToChange[i].setRow(enemieCurrentPosition[i].getRow() + enemieDirectionToGo[i].getRow());
+               enemieCurrentPosition[i] = positionToChange[i];
+           }
+
+           if(enemieDirectionToGo[i] == Direction.UP)
+           {
+               isChanging[i] = false;
+               Range<Integer> x = new Range<Integer>(Math.round(enemieX[i])-30, Math.round(enemieX[i])+30);
+               Range<Integer> y = new Range<Integer>(Math.round(enemieY[i])-30, Math.round(enemieY[i])+30);
+
+               if ( x.contains(Math.round(cellX[enemieDirectionToGo[i].getCol()])) && y.contains(Math.round(cellY[enemieDirectionToGo[i].getRow()]))) {
+                   enemieX[i] = cellX[enemieDirectionToGo[i].getCol()];
+                   enemieY[i] = cellY[enemieDirectionToGo[i].getRow()];
+                   enemieCurrentPosition[i].setCol(enemieDirectionToGo[i].getCol());
+                   enemieCurrentPosition[i].setRow(enemieDirectionToGo[i].getRow());
+                   enemieDirectionToGo[i] = Direction.DOWN;
+                   isChanging[i] = true;
+               }
+
+               enemieX[i] += enemieDirectionToGo[i].getCol() * deltaTime * 10;
+               enemieY[i] += enemieDirectionToGo[i].getRow() * deltaTime * 10;
+
+
+
+           }
+       }
+    }
 }
+

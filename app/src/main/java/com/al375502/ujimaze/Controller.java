@@ -45,6 +45,11 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
     private AnimatedBitmap targetAnimated;
 
+    private AnimatedBitmap enemieUP;
+    private AnimatedBitmap enemieDOWN;
+    private AnimatedBitmap enemieLEFT;
+    private AnimatedBitmap enemieRIGHT;
+
     public int playerSide;
     public int width, height;
     public Context context;
@@ -79,11 +84,20 @@ public class Controller implements IGameController, Model.SoundPlayer {
         Assets.createTargetAssets(context,playerSide);
         Assets.createWallsAssets(context,playerSide);
         Assets.createGrassAssets(context,playerSide, lineWidth);
+        Assets.createEnemiesAssets(context,playerSide);
         definePlayerAnimationAssets();
         defineTargetAnimationAssets();
+        defineEnemieAnimationAssets();
         graphics = new Graphics(this.width, this.height);
         prepareMediaPlayer();
         model = new Model(cellX,cellY,this, mediaPlayer);
+    }
+
+    private void defineEnemieAnimationAssets() {
+        enemieUP = new AnimatedBitmap(0.5f, Assets.enemieUp0, Assets.enemieUp1, Assets.enemieUp2, Assets.enemieUp3);
+        enemieDOWN = new AnimatedBitmap(0.5f, Assets.enemieDown0, Assets.enemieDown1, Assets.enemieDown2, Assets.enemieDown3);
+        enemieLEFT = new AnimatedBitmap(0.5f, Assets.enemieLeft0, Assets.enemieLeft1, Assets.enemieLeft2, Assets.enemieLeft3);
+        enemieRIGHT = new AnimatedBitmap(0.5f, Assets.enemieRight0, Assets.enemieRight1, Assets.enemieRight2, Assets.enemieRight3);
     }
 
     private void defineTargetAnimationAssets() {
@@ -106,8 +120,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
-        //Log.d("targets", "");
-        ///////////////////////////////FALTA CAMBIAR LO QUE DETECTE UN CLICK, NONE O DRAG. LO DE >80
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
@@ -116,7 +128,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
                     if(!model.playerIsMoving) model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
-                    //Log.d("pressed", "help");
+                   // model.Dijsktra();
                 } else {
                     if(!model.playerIsMoving) {
                         float y1 = event.y, x1 = event.x;
@@ -166,15 +178,20 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
         }
         if(model.playerIsMoving) model.startMovingDirection(directionToGo, deltaTime);
-        animatePlayerTarget(deltaTime);
+        animatePlayerTargetEnemie(deltaTime);
+        model.moveEnemies(deltaTime);
     }
 
-    private void animatePlayerTarget(float deltaTime) {
+    private void animatePlayerTargetEnemie(float deltaTime) {
         playerUP.update(deltaTime);
         playerDOWN.update(deltaTime);
         playerRIGHT.update(deltaTime);
         playerLEFT.update(deltaTime);
         targetAnimated.update(deltaTime);
+        enemieUP.update(deltaTime);
+        enemieRIGHT.update(deltaTime);
+        enemieLEFT.update(deltaTime);
+        enemieDOWN.update(deltaTime);
     }
 
     @Override
@@ -184,7 +201,18 @@ public class Controller implements IGameController, Model.SoundPlayer {
         drawMaze();
         drawPlayer();
         drawTargets();
+        drawEnemies();
         return graphics.getFrameBuffer();
+    }
+
+    private void drawEnemies() {
+        for(int i = 0; i < model.enemies.length; i++)
+        {
+            if(model.enemieDirectionToGo[i] == Direction.DOWN) graphics.drawBitmap(enemieDOWN.getCurrentFrame(), model.enemieX[i], model.enemieY[i]);
+            if(model.enemieDirectionToGo[i] == Direction.LEFT) graphics.drawBitmap(enemieLEFT.getCurrentFrame(), model.enemieX[i], model.enemieY[i]);
+            if(model.enemieDirectionToGo[i] == Direction.RIGHT) graphics.drawBitmap(enemieRIGHT.getCurrentFrame(), model.enemieX[i], model.enemieY[i]);
+            if(model.enemieDirectionToGo[i] == Direction.UP) graphics.drawBitmap(enemieUP.getCurrentFrame(), model.enemieX[i], model.enemieY[i]);
+        }
     }
 
     private void drawTargets() {
