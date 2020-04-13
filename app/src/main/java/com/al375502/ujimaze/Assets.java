@@ -17,10 +17,25 @@ public class Assets {
     private static Bitmap targetSprites;
     private static SpriteSheet targets;
 
-    public static Bitmap playerUp;
-    public static Bitmap playerDown;
-    public static Bitmap playerLeft;
-    public static Bitmap playerRight;
+    public static Bitmap playerUp0;
+    public static Bitmap playerDown0;
+    public static Bitmap playerLeft0;
+    public static Bitmap playerRight0;
+
+    public static Bitmap playerUp1;
+    public static Bitmap playerDown1;
+    public static Bitmap playerLeft1;
+    public static Bitmap playerRight1;
+
+    public static Bitmap playerUp2;
+    public static Bitmap playerDown2;
+    public static Bitmap playerLeft2;
+    public static Bitmap playerRight2;
+
+    public static Bitmap playerUp3;
+    public static Bitmap playerDown3;
+    public static Bitmap playerLeft3;
+    public static Bitmap playerRight3;
 
     public static Bitmap target0;
     public static Bitmap target1;
@@ -34,6 +49,10 @@ public class Assets {
     public static Bitmap wallsSprites;
     public static SpriteSheet walls;
     public static Bitmap[] wallsBitmaps = new Bitmap[15];
+
+    public static Bitmap grassSprites;
+    public static SpriteSheet grassSpriteSheet;
+    public static Bitmap grass;
 
     public static void createWallsAssets(Context context, int playerSide)
     {
@@ -58,15 +77,45 @@ public class Assets {
         playerSprites = BitmapFactory.decodeResource(resources,R.drawable.player);
         players = new SpriteSheet(playerSprites, PLAYER_SIDE, PLAYER_SIDE);
 
-        if(playerUp != null) playerUp.recycle();
-        if(playerDown != null) playerDown.recycle();
-        if(playerLeft != null) playerLeft.recycle();
-        if(playerRight != null) playerRight.recycle();
+        if(playerUp0 != null) playerUp0.recycle();
+        if(playerDown0 != null) playerDown0.recycle();
+        if(playerLeft0 != null) playerLeft0.recycle();
+        if(playerRight0 != null) playerRight0.recycle();
 
-        playerUp = players.getScaledSprite(3, 0, playerSide, playerSide);
-        playerDown = players.getScaledSprite(0, 0, playerSide, playerSide);
-        playerLeft = players.getScaledSprite(1, 0, playerSide, playerSide);
-        playerRight = players.getScaledSprite(2, 0, playerSide, playerSide);
+        if(playerUp1 != null) playerUp1.recycle();
+        if(playerDown1 != null) playerDown1.recycle();
+        if(playerLeft1 != null) playerLeft1.recycle();
+        if(playerRight1 != null) playerRight1.recycle();
+
+        if(playerUp2 != null) playerUp2.recycle();
+        if(playerDown2 != null) playerDown2.recycle();
+        if(playerLeft2 != null) playerLeft2.recycle();
+        if(playerRight2 != null) playerRight2.recycle();
+
+        if(playerUp3 != null) playerUp3.recycle();
+        if(playerDown3 != null) playerDown3.recycle();
+        if(playerLeft3 != null) playerLeft3.recycle();
+        if(playerRight3 != null) playerRight3.recycle();
+
+        playerUp0 = players.getScaledSprite(3, 0, playerSide, playerSide);
+        playerDown0 = players.getScaledSprite(0, 0, playerSide, playerSide);
+        playerLeft0 = players.getScaledSprite(1, 0, playerSide, playerSide);
+        playerRight0 = players.getScaledSprite(2, 0, playerSide, playerSide);
+
+        playerUp1 = players.getScaledSprite(3, 1, playerSide, playerSide);
+        playerDown1 = players.getScaledSprite(0, 1, playerSide, playerSide);
+        playerLeft1 = players.getScaledSprite(1, 1, playerSide, playerSide);
+        playerRight1 = players.getScaledSprite(2, 1, playerSide, playerSide);
+
+        playerUp2 = players.getScaledSprite(3, 2, playerSide, playerSide);
+        playerDown2 = players.getScaledSprite(0, 2, playerSide, playerSide);
+        playerLeft2 = players.getScaledSprite(1, 2, playerSide, playerSide);
+        playerRight2 = players.getScaledSprite(2, 2, playerSide, playerSide);
+
+        playerUp3 = players.getScaledSprite(3, 3, playerSide, playerSide);
+        playerDown3 = players.getScaledSprite(0, 3, playerSide, playerSide);
+        playerLeft3 = players.getScaledSprite(1, 3, playerSide, playerSide);
+        playerRight3 = players.getScaledSprite(2, 3, playerSide, playerSide);
 
         //Define buttons variables
         if(reset == null) reset = context.getDrawable(R.drawable.reset);
@@ -91,5 +140,17 @@ public class Assets {
         target1 = targets.getScaledSprite(0, 1, playerSide, playerSide);
         target2 = targets.getScaledSprite(0, 2, playerSide, playerSide);
         target3 = targets.getScaledSprite(0, 3, playerSide, playerSide);
+    }
+
+    public static void createGrassAssets(Context context, int playerSide, int lineWidth)
+    {
+        Resources resources = context.getResources();
+        if(grassSprites != null) grassSprites.recycle();
+        grassSprites = BitmapFactory.decodeResource(resources,R.drawable.grass);
+        grassSpriteSheet = new SpriteSheet(grassSprites, 512, 512);
+
+        if(grass != null) grass.recycle();
+
+        grass = grassSpriteSheet.getScaledSprite(0,0,playerSide+lineWidth,playerSide+lineWidth);
     }
 }

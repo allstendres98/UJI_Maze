@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import es.uji.vj1229.framework.AnimatedBitmap;
 import es.uji.vj1229.framework.Graphics;
 import es.uji.vj1229.framework.IGameController;
 import es.uji.vj1229.framework.TouchHandler;
@@ -33,10 +34,16 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private static final float MARGIN_FRACTION = 0.08f;
     private static final float LINEWIDTH_FRACTION = 0.01f;
     private static final float CELL_FRACTION = (1 - 2 * MARGIN_FRACTION - 2 * LINEWIDTH_FRACTION)/7;
-    private static final int BACKGROUND_COLOR = 0xff9ffccf;
+    private static final int BACKGROUND_COLOR = 0xffb8b8b8;
     private static final int LINE_COLOR = 0xff000000;
     private static final int SUBLINE_COLOR = 0xffb8b8b8;
-    
+
+    private AnimatedBitmap playerUP;
+    private AnimatedBitmap playerDOWN;
+    private AnimatedBitmap playerLEFT;
+    private AnimatedBitmap playerRIGHT;
+
+    private AnimatedBitmap targetAnimated;
 
     public int playerSide;
     public int width, height;
@@ -71,9 +78,23 @@ public class Controller implements IGameController, Model.SoundPlayer {
         Assets.createPlayerAssets(context,playerSide);
         Assets.createTargetAssets(context,playerSide);
         Assets.createWallsAssets(context,playerSide);
+        Assets.createGrassAssets(context,playerSide, lineWidth);
+        definePlayerAnimationAssets();
+        defineTargetAnimationAssets();
         graphics = new Graphics(this.width, this.height);
         prepareMediaPlayer();
         model = new Model(cellX,cellY,this, mediaPlayer);
+    }
+
+    private void defineTargetAnimationAssets() {
+        targetAnimated = new AnimatedBitmap(0.5f, Assets.target0, Assets.target1, Assets.target2, Assets.target3);
+    }
+
+    private void definePlayerAnimationAssets() {
+        playerUP = new AnimatedBitmap(0.5f, Assets.playerUp0, Assets.playerUp1, Assets.playerUp2, Assets.playerUp3);
+        playerDOWN = new AnimatedBitmap(0.5f, Assets.playerDown0, Assets.playerDown1, Assets.playerDown2, Assets.playerDown3);
+        playerLEFT = new AnimatedBitmap(0.5f, Assets.playerLeft0, Assets.playerLeft1, Assets.playerLeft2, Assets.playerLeft3);
+        playerRIGHT = new AnimatedBitmap(0.5f, Assets.playerRight0, Assets.playerRight1, Assets.playerRight2, Assets.playerRight3);
     }
 
     private void prepareMediaPlayer() {
@@ -86,6 +107,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     @Override
     public void onUpdate(float deltaTime, List<TouchHandler.TouchEvent> touchEvents) {
         //Log.d("targets", "");
+        ///////////////////////////////FALTA CAMBIAR LO QUE DETECTE UN CLICK, NONE O DRAG. LO DE >80
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
@@ -141,6 +163,15 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
         }
         if(model.playerIsMoving) model.startMovingDirection(directionToGo, deltaTime);
+        animatePlayerTarget(deltaTime);
+    }
+
+    private void animatePlayerTarget(float deltaTime) {
+        playerUP.update(deltaTime);
+        playerDOWN.update(deltaTime);
+        playerRIGHT.update(deltaTime);
+        playerLEFT.update(deltaTime);
+        targetAnimated.update(deltaTime);
     }
 
     @Override
@@ -156,13 +187,19 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private void drawTargets() {
         for(int i = 0; i < model.targets.length; i++)
         {
-            if(!model.targetsCollected[i]) graphics.drawBitmap(Assets.target0,cellX[model.targets[i].getCol()],cellY[model.targets[i].getRow()]);
-            //else graphics.drawBitmap(Assets.target0,-900,-900);
+            if(!model.targetsCollected[i]) graphics.drawBitmap(targetAnimated.getCurrentFrame(),cellX[model.targets[i].getCol()],cellY[model.targets[i].getRow()]);
         }
     }
 
     private void drawPlayer() {
-        graphics.drawBitmap(Assets.playerDown,model.playerCurrentPositionX,model.playerCurrentPositionY);
+        if(model.playerIsMoving)
+        {
+            if(directionToGo == Direction.RIGHT) graphics.drawBitmap(playerRIGHT.getCurrentFrame(),model.playerCurrentPositionX,model.playerCurrentPositionY);
+            if(directionToGo == Direction.DOWN) graphics.drawBitmap(playerDOWN.getCurrentFrame(),model.playerCurrentPositionX,model.playerCurrentPositionY);
+            if(directionToGo == Direction.UP) graphics.drawBitmap(playerUP.getCurrentFrame(),model.playerCurrentPositionX,model.playerCurrentPositionY);
+            if(directionToGo == Direction.LEFT) graphics.drawBitmap(playerLEFT.getCurrentFrame(),model.playerCurrentPositionX,model.playerCurrentPositionY);
+        }
+        else graphics.drawBitmap(Assets.playerDown0,model.playerCurrentPositionX,model.playerCurrentPositionY);
     }
 
     public void configureGraphicsParameters(int width, int height)
@@ -194,18 +231,19 @@ public class Controller implements IGameController, Model.SoundPlayer {
         graphics.drawDrawable(Assets.help,xhelp,yhelp,BUTTON_SIZE,BUTTON_SIZE);
         graphics.drawDrawable(Assets.reset,xreset, yreset,BUTTON_SIZE,BUTTON_SIZE);
         graphics.drawDrawable(Assets.undo,xundo,yundo,BUTTON_SIZE,BUTTON_SIZE);
-
     }
 
     private void drawMaze(){
         Maze maze = Levels.mazes[model.getCurrentMaze()];
-        /*for(int i = 0; i < maze.getNRows(); i++)
-            for(int j = maze.getNCols(); j >= 0; j--) {
-                graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
+        for(int i = 0; i < maze.getNRows(); i++)
+            for(int j = maze.getNCols()-1; j >= 0; j--) {
+                /*graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
                 graphics.drawLine(cellX[i], cellY[i], cellX[i], cellY[j], lineWidth, SUBLINE_COLOR);
                 graphics.drawLine(cellX[i], cellY[j], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
-                graphics.drawLine(cellX[j], cellY[i], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
-            }*/
+                graphics.drawLine(cellX[j], cellY[i], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);*/
+
+                graphics.drawBitmap(Assets.grass, cellX[i], cellY[j]);
+            }
 
         char[] row = maze.toString().toCharArray();
         int cont = 0;
