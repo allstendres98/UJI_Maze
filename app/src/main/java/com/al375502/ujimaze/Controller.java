@@ -87,7 +87,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     }
 
     private void defineTargetAnimationAssets() {
-        targetAnimated = new AnimatedBitmap(0.5f, Assets.target0, Assets.target1, Assets.target2, Assets.target3);
+        targetAnimated = new AnimatedBitmap(1f, Assets.target0, Assets.target1, Assets.target2, Assets.target3, Assets.target4, Assets.target5);
     }
 
     private void definePlayerAnimationAssets() {
@@ -144,7 +144,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
                                 directionToGo = Direction.LEFT;
                             else directionToGo = Direction.UP;
                         }
-                        model.calculateNextPosition(directionToGo);
+                        if(directionToGo!= null) model.calculateNextPosition(directionToGo);
                     }
                 }
                 tocando = false;

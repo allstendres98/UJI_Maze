@@ -41,6 +41,8 @@ public class Assets {
     public static Bitmap target1;
     public static Bitmap target2;
     public static Bitmap target3;
+    public static Bitmap target4;
+    public static Bitmap target5;
 
     public static Drawable reset;
     public static Drawable undo;
@@ -135,11 +137,15 @@ public class Assets {
         if(target1 != null) target1.recycle();
         if(target2 != null) target2.recycle();
         if(target3 != null) target3.recycle();
+        if(target4 != null) target4.recycle();
+        if(target5 != null) target5.recycle();
 
         target0 = targets.getScaledSprite(0, 0, playerSide, playerSide);
         target1 = targets.getScaledSprite(0, 1, playerSide, playerSide);
         target2 = targets.getScaledSprite(0, 2, playerSide, playerSide);
         target3 = targets.getScaledSprite(0, 3, playerSide, playerSide);
+        target4 = targets.getScaledSprite(0, 4, playerSide, playerSide);
+        target5 = targets.getScaledSprite(0, 5, playerSide, playerSide);
     }
 
     public static void createGrassAssets(Context context, int playerSide, int lineWidth)
