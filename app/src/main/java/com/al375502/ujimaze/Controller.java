@@ -120,31 +120,34 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 } else {
                     if(!model.playerIsMoving) {
                         float y1 = event.y, x1 = event.x;
-                        //Log.d("pressed", "x0: " + x0 + " y0: " + y0 + " x1: " + x1 + " y1: " + y1);
-                        if (x0 < x1 && y0 < y1) {
-                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
-                                directionToGo = Direction.RIGHT;
-                            else directionToGo = Direction.DOWN;
+                        Log.d("pressed", "x0 - x1: " + Math.abs(x0 - x1) + " y0 - y1: " + Math.abs(y0 - y1));
+                        if(Math.abs(x0 - x1) > 80f || Math.abs(y0 - y1) > 80f){
+                            if (x0 < x1 && y0 < y1) {
+                                if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                    directionToGo = Direction.RIGHT;
+                                else directionToGo = Direction.DOWN;
+                            }
+
+                            if (x0 > x1 && y0 < y1) {
+                                if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                    directionToGo = Direction.LEFT;
+                                else directionToGo = Direction.DOWN;
+                            }
+
+                            if (x0 < x1 && y0 > y1) {
+                                if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                    directionToGo = Direction.RIGHT;
+                                else directionToGo = Direction.UP;
+                            }
+
+                            if (x0 > x1 && y0 > y1) {
+                                if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
+                                    directionToGo = Direction.LEFT;
+                                else directionToGo = Direction.UP;
+                            }
+                            if(directionToGo!= null) model.calculateNextPosition(directionToGo);
                         }
 
-                        if (x0 > x1 && y0 < y1) {
-                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
-                                directionToGo = Direction.LEFT;
-                            else directionToGo = Direction.DOWN;
-                        }
-
-                        if (x0 < x1 && y0 > y1) {
-                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
-                                directionToGo = Direction.RIGHT;
-                            else directionToGo = Direction.UP;
-                        }
-
-                        if (x0 > x1 && y0 > y1) {
-                            if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
-                                directionToGo = Direction.LEFT;
-                            else directionToGo = Direction.UP;
-                        }
-                        if(directionToGo!= null) model.calculateNextPosition(directionToGo);
                     }
                 }
                 tocando = false;
