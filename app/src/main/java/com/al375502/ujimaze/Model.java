@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.Stack;
 
 public class Model {
-
+public boolean gameOver = false;
 public boolean playerIsMoving = false;
 public float playerCurrentPositionX;
 public float playerCurrentPositionY;
@@ -41,7 +41,7 @@ public Integer[] targetsCollectedMovement;
     public Position[]positionToChange;
     public boolean[] isChanging;
 
-private int currentMazeIndex = 0;
+public int currentMazeIndex = 0;
 private int speed = 200;
 private float[] cellX;
 private float[] cellY;
@@ -134,7 +134,7 @@ public void resetMaze(){
 }
 
     private void defineEnemieDirection(int i) {
-        if(currentMazeIndex == 4) {
+        if(currentMazeIndex == 3 || currentMazeIndex == 1) {
             enemieDirectionToGo[i] = Direction.UP;
         }
         else enemieDirectionToGo[i] = Direction.RIGHT;
@@ -159,20 +159,30 @@ public void resetMaze(){
         }
 }
 public int getCurrentMaze(){ return currentMazeIndex; }
-public void moveNextMaze(){ soundPlayer.playAllTargetsCollected(); currentMazeIndex++; resetMaze();enemies = Levels.mazes[getCurrentMaze()].getEnemies().toArray(new Position[0]);
-    enemieDirectionToGo = new Direction[enemies.length];
-    enemieCurrentPosition = new Position[enemies.length];
-    enemieY = new float[enemies.length];
-    enemieX = new float[enemies.length];
-    isChanging = new boolean[enemies.length];
-    for(int i = 0; i < enemies.length; i++){
-        enemieCurrentPosition[i] = enemies[i];
-        enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
-        enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
-        defineEnemieDirection(i);
-        isChanging[i] = true;
+public void moveNextMaze() {
+    if (getCurrentMaze() < Levels.mazes.length - 1) {
+        soundPlayer.playAllTargetsCollected();
+        currentMazeIndex++;
+        resetMaze();
+        enemies = Levels.mazes[getCurrentMaze()].getEnemies().toArray(new Position[0]);
+        enemieDirectionToGo = new Direction[enemies.length];
+        enemieCurrentPosition = new Position[enemies.length];
+        enemieY = new float[enemies.length];
+        enemieX = new float[enemies.length];
+        isChanging = new boolean[enemies.length];
+        for (int i = 0; i < enemies.length; i++) {
+            enemieCurrentPosition[i] = enemies[i];
+            enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+            enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+            defineEnemieDirection(i);
+            isChanging[i] = true;
+        }
+        positionToChange = enemieCurrentPosition;
     }
-    positionToChange = enemieCurrentPosition;}
+    else{
+        gameOver = true;
+    }
+}
 
 public void startMovingDirection(Direction direction, float deltaTime){
     if(playerIsMoving) {
@@ -240,8 +250,10 @@ public void moveEnemies(float deltaTime)
            }
 
            isChanging[i] = false;
-           enemieX[i] += enemieDirectionToGo[i].getCol() * deltaTime * 100;
-           enemieY[i] += enemieDirectionToGo[i].getRow() * deltaTime * 100;
+
+               enemieX[i] += enemieDirectionToGo[i].getCol() * deltaTime * 100;
+               enemieY[i] += enemieDirectionToGo[i].getRow() * deltaTime * 100;
+           
            Range<Integer> x = new Range<Integer>(Math.round(enemieX[i])-10, Math.round(enemieX[i])+10);
            Range<Integer> y = new Range<Integer>(Math.round(enemieY[i])-10, Math.round(enemieY[i])+10);
 

@@ -91,6 +91,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
         graphics = new Graphics(this.width, this.height);
         prepareMediaPlayer();
         model = new Model(cellX,cellY,this, mediaPlayer);
+        Assets.createGameOverAsset(context,playerSide);
     }
 
     private void defineEnemieAnimationAssets() {
@@ -123,14 +124,15 @@ public class Controller implements IGameController, Model.SoundPlayer {
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
-                    model.touchResetButton();
+                    if(!model.gameOver) model.touchResetButton();
+                    else{model.gameOver = false; model.currentMazeIndex = -1; model.moveNextMaze();}
                 }
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
-                    if(!model.playerIsMoving) model.goToPreviousPosition();
+                    if(!model.playerIsMoving && !model.gameOver) model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
                    // model.Dijsktra();
                 } else {
-                    if(!model.playerIsMoving) {
+                    if(!model.playerIsMoving && !model.gameOver) {
                         float y1 = event.y, x1 = event.x;
                         Log.d("pressed", "x0 - x1: " + Math.abs(x0 - x1) + " y0 - y1: " + Math.abs(y0 - y1));
                         if(Math.abs(x0 - x1) > 80f || Math.abs(y0 - y1) > 80f){
@@ -177,9 +179,11 @@ public class Controller implements IGameController, Model.SoundPlayer {
             }
 
         }
-        if(model.playerIsMoving) model.startMovingDirection(directionToGo, deltaTime);
-        animatePlayerTargetEnemie(deltaTime);
-        model.moveEnemies(deltaTime);
+        if(!model.gameOver) {
+            if (model.playerIsMoving) model.startMovingDirection(directionToGo, deltaTime);
+            animatePlayerTargetEnemie(deltaTime);
+            model.moveEnemies(deltaTime);
+        }
     }
 
     private void animatePlayerTargetEnemie(float deltaTime) {
@@ -276,7 +280,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 graphics.drawBitmap(Assets.grass, cellX[i], cellY[j]);
             }
 
-        char[] row = maze.toString().toCharArray();
+        /*char[] row = maze.toString().toCharArray();
         int cont = 0;
         int aux = 0;
         for(int i = 0; i < maze.toString().length(); i++,aux++)
@@ -291,37 +295,70 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 cont++;
                 aux = 0;
             }
-        }
-        /*
+        }*/
         char[] row = maze.toString().toCharArray();
         int toPaint = 0;
         int cont = 0;
         int aux = 0;
-        for(int i = 15; i < maze.toString().length(); i++, aux++)
+        float offset_toPaint = playerSide / 20.0f;
+        int length = maze.toString().length();
+        for(int i = 0; i < length; i++, aux++)
         {
             if(!Character.toString(row[i]).equals(" ")) {
                 if (Character.toString(row[i]).equals("+")) {
-                    if (Character.toString(row[i - 1]).equals("-"))
-                    {
-                        toPaint = 13;
-                        //if()
+                    if(i < length-1 && Character.toString(row[i + 1]).equals("-")){
+                        toPaint = 1; //Horizontal
+                        graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)]+playerSide/16 - offset_toPaint, cellY[Math.round(cont/2)]-offset_toPaint);
                     }
-                }
-                else if (Character.toString(row[i]).equals("-"))
-                {
-                    toPaint = 1;
-                    //if()
-                }
-                else if (Character.toString(row[i]).equals("|"))
-                {
-                    toPaint = 0;
-                    //if()
+                    if( cont < 14 && Character.toString(row[i + 16]).equals("|")){
+                        toPaint = 0; //Vertical
+                        graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)]-offset_toPaint, cellY[Math.round(cont/2)]+playerSide/16-offset_toPaint);
+                    }
                 }
                 else if(Character.toString(row[i]).equals("\n")){
                     cont++;
                     aux = 0;
                 }
-                graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)], cellY[Math.round(cont/2)]);
+            }
+        }
+        cont = 0;
+        aux = 0;
+        toPaint = 0;
+        for(int i = 0; i < length; i++, aux++)
+        {
+            if(!Character.toString(row[i]).equals(" ")) {
+                if (Character.toString(row[i]).equals("+")) {
+                    toPaint = 0;
+                    if ( i != 0 && Character.toString(row[i - 1]).equals("-"))
+                    {
+                        toPaint = 13; //fin derecha
+                    }
+                    if(i != length-1 && Character.toString(row[i + 1]).equals("-")){
+                        if(toPaint == 13) toPaint = 1; //horizontal
+                        else toPaint = 11; //fin izquierda
+                    }
+                    if(cont > 0 && Character.toString(row[i - 16]).equals("|")){ //top
+                        if(toPaint == 13)      toPaint = 8; //esquina arriba izquierda
+                        else if(toPaint == 1)  toPaint = 6; //horizontal arriba
+                        else if(toPaint == 11) toPaint = 7; //esquina arriba derecha
+                        else toPaint = 14;  //fin abajo
+                    }
+                    if(cont < 14 && Character.toString(row[i + 16]).equals("|")){
+                        if(toPaint == 13)      toPaint = 9; //esquina izquierda abajo
+                        else if(toPaint == 8)  toPaint = 3; //vertical izquierda
+                        else if(toPaint == 1)  toPaint = 4; //horizontal abajo
+                        else if(toPaint == 11) toPaint = 10;//esquina derecha abajo
+                        else if(toPaint == 6)  toPaint = 2; //interseccion +
+                        else if(toPaint == 7)  toPaint = 5; //vertical derecha
+                        else if(toPaint == 14) toPaint = 0; //vertical
+                    }
+                    graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)]-offset_toPaint, cellY[Math.round(cont/2)]-offset_toPaint);
+                }
+                else if(Character.toString(row[i]).equals("\n")){
+                    cont++;
+                    aux = 0;
+                }
+                //graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)], cellY[Math.round(cont/2)]);
 
 
             }
@@ -329,7 +366,8 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
         }
 
-         */
+        ///GAMEOVER PANEL
+        if(model.gameOver) graphics.drawBitmap(Assets.gameOver, width/2-width/3f, height/2+height/3.5f);
     }
 
     private void prepareSoundPool(Context context){

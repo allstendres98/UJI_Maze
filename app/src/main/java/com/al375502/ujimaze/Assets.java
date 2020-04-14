@@ -17,6 +17,10 @@ public class Assets {
     private static Bitmap targetSprites;
     private static SpriteSheet targets;
 
+    public static Bitmap gameOverSprites;
+    private static SpriteSheet gameOvers;
+    public static Bitmap gameOver;
+
     public static Bitmap playerUp0;
     public static Bitmap playerDown0;
     public static Bitmap playerLeft0;
@@ -86,11 +90,18 @@ public class Assets {
         if(wallsSprites != null) wallsSprites.recycle();
         wallsSprites = BitmapFactory.decodeResource(resources,R.drawable.walls);
         walls = new SpriteSheet(wallsSprites, 32, 32);
+        int auxV = playerSide/8;
+        int auxH = playerSide/8;
 
         for(int i = 0; i < wallsBitmaps.length; i++)
         {
             if(wallsBitmaps[i] != null) wallsBitmaps[i].recycle();
-            wallsBitmaps[i] = walls.getScaledSprite(0, i, playerSide, playerSide);
+            //if(murosVH.contains(i)){auxV = playerSide/8; auxH = playerSide/8;}
+            if(i > 1) {auxV = playerSide/8; auxH = playerSide/8;}
+            else if(i == 0) {auxV = playerSide + playerSide/16; auxH = playerSide/8;}
+            else { auxH = playerSide + playerSide/16; auxV = playerSide/8;}
+
+            wallsBitmaps[i] = walls.getScaledSprite(0, i, auxH, auxV);
         }
     }
 
@@ -230,5 +241,17 @@ public class Assets {
         enemieUp1 = enemies.getScaledSprite(3, 1, playerSide, playerSide);
         enemieUp2 = enemies.getScaledSprite(3, 2, playerSide, playerSide);
         enemieUp3 = enemies.getScaledSprite(3, 3, playerSide, playerSide);
+    }
+
+    public static void createGameOverAsset(Context context, int playerSide)
+    {
+        Resources resources = context.getResources();
+        //Define player variables
+        if(gameOverSprites != null) gameOverSprites.recycle();
+        gameOverSprites = BitmapFactory.decodeResource(resources,R.drawable.game_over);
+        gameOvers = new SpriteSheet(gameOverSprites, 220, 955);
+
+        if(gameOver != null) gameOver.recycle();
+        gameOver = gameOvers.getScaledSprite(0,0,playerSide*6,playerSide*2);
     }
 }
