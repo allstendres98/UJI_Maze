@@ -131,18 +131,10 @@ public void resetMaze(){
     targetsCollectedMovement = new Integer[numTargets];
     targetsCollected = new boolean[numTargets];
     for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
-    enemies = Levels.mazes[getCurrentMaze()].getEnemies().toArray(new Position[0]);
-    for(int i = 0; i < enemies.length; i++){
-        enemieCurrentPosition[i] = enemies[i];
-        enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
-        enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
-        defineEnemieDirection(i);
-        isChanging[i] = true;
-    }
 }
 
     private void defineEnemieDirection(int i) {
-        if(currentMazeIndex == 0) {
+        if(currentMazeIndex == 4) {
             enemieDirectionToGo[i] = Direction.UP;
         }
         else enemieDirectionToGo[i] = Direction.RIGHT;
@@ -167,7 +159,20 @@ public void resetMaze(){
         }
 }
 public int getCurrentMaze(){ return currentMazeIndex; }
-public void moveNextMaze(){ soundPlayer.playAllTargetsCollected(); currentMazeIndex++; resetMaze();}
+public void moveNextMaze(){ soundPlayer.playAllTargetsCollected(); currentMazeIndex++; resetMaze();enemies = Levels.mazes[getCurrentMaze()].getEnemies().toArray(new Position[0]);
+    enemieDirectionToGo = new Direction[enemies.length];
+    enemieCurrentPosition = new Position[enemies.length];
+    enemieY = new float[enemies.length];
+    enemieX = new float[enemies.length];
+    isChanging = new boolean[enemies.length];
+    for(int i = 0; i < enemies.length; i++){
+        enemieCurrentPosition[i] = enemies[i];
+        enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+        enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+        defineEnemieDirection(i);
+        isChanging[i] = true;
+    }
+    positionToChange = enemieCurrentPosition;}
 
 public void startMovingDirection(Direction direction, float deltaTime){
     if(playerIsMoving) {
@@ -234,27 +239,54 @@ public void moveEnemies(float deltaTime)
                enemieCurrentPosition[i] = positionToChange[i];
            }
 
+           isChanging[i] = false;
+           enemieX[i] += enemieDirectionToGo[i].getCol() * deltaTime * 100;
+           enemieY[i] += enemieDirectionToGo[i].getRow() * deltaTime * 100;
+           Range<Integer> x = new Range<Integer>(Math.round(enemieX[i])-10, Math.round(enemieX[i])+10);
+           Range<Integer> y = new Range<Integer>(Math.round(enemieY[i])-10, Math.round(enemieY[i])+10);
+
            if(enemieDirectionToGo[i] == Direction.UP)
            {
-               isChanging[i] = false;
-               Range<Integer> x = new Range<Integer>(Math.round(enemieX[i])-30, Math.round(enemieX[i])+30);
-               Range<Integer> y = new Range<Integer>(Math.round(enemieY[i])-30, Math.round(enemieY[i])+30);
-
-               if ( x.contains(Math.round(cellX[enemieDirectionToGo[i].getCol()])) && y.contains(Math.round(cellY[enemieDirectionToGo[i].getRow()]))) {
-                   enemieX[i] = cellX[enemieDirectionToGo[i].getCol()];
-                   enemieY[i] = cellY[enemieDirectionToGo[i].getRow()];
-                   enemieCurrentPosition[i].setCol(enemieDirectionToGo[i].getCol());
-                   enemieCurrentPosition[i].setRow(enemieDirectionToGo[i].getRow());
-                   enemieDirectionToGo[i] = Direction.DOWN;
+               if ( x.contains(Math.round(cellX[enemieCurrentPosition[i].getCol()])) && y.contains(Math.round(cellY[enemieCurrentPosition[i].getRow()]))) {
                    isChanging[i] = true;
+                   enemieDirectionToGo[i] = Direction.DOWN;
+                   enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+                   enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
                }
-
-               enemieX[i] += enemieDirectionToGo[i].getCol() * deltaTime * 10;
-               enemieY[i] += enemieDirectionToGo[i].getRow() * deltaTime * 10;
-
-
-
            }
+           else if(enemieDirectionToGo[i] == Direction.DOWN)
+           {
+               if ( x.contains(Math.round(cellX[enemieCurrentPosition[i].getCol()])) && y.contains(Math.round(cellY[enemieCurrentPosition[i].getRow()]))) {
+                   isChanging[i] = true;
+                   enemieDirectionToGo[i] = Direction.UP;
+                   enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+                   enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+               }
+           }
+           else if(enemieDirectionToGo[i] == Direction.LEFT)
+           {
+               if ( x.contains(Math.round(cellX[enemieCurrentPosition[i].getCol()])) && y.contains(Math.round(cellY[enemieCurrentPosition[i].getRow()]))) {
+                   isChanging[i] = true;
+                   enemieDirectionToGo[i] = Direction.RIGHT;
+                   enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+                   enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+               }
+           }
+           else if(enemieDirectionToGo[i] == Direction.RIGHT)
+           {
+               if ( x.contains(Math.round(cellX[enemieCurrentPosition[i].getCol()])) && y.contains(Math.round(cellY[enemieCurrentPosition[i].getRow()]))) {
+                   isChanging[i] = true;
+                   enemieDirectionToGo[i] = Direction.LEFT;
+                   enemieX[i] = cellX[enemieCurrentPosition[i].getCol()];
+                   enemieY[i] = cellY[enemieCurrentPosition[i].getRow()];
+               }
+           }
+           Range<Integer> x1 = new Range<Integer>(Math.round(enemieX[i])-40, Math.round(enemieX[i])+40);
+           Range<Integer> y1 = new Range<Integer>(Math.round(enemieY[i])-40, Math.round(enemieY[i])+40);
+           if ( x1.contains(Math.round(playerCurrentPositionX)) && y1.contains(Math.round(playerCurrentPositionY))) {
+               resetMaze();
+           }
+
        }
     }
 }

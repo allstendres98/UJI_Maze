@@ -359,12 +359,12 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
     @Override
     public void playTargetCollected() {
-        soundPool.play(TargetCollected, 5f, 5f, 0, 0, 1);
+        soundPool.play(TargetCollected, 5f, 5f, 0, 0, 0);
     }
 
     @Override
     public void playAllTargetsCollected() {
-        soundPool.play(AllTargetsCollected, 5f, 5f, 0, 0, 1);
+        soundPool.play(AllTargetsCollected, 5f, 5f, 0, 0, 0);
     }
 
     @Override
