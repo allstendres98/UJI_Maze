@@ -17,7 +17,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-
 public class Model {
 public boolean gameOver = false;
 public boolean playerIsMoving = false;
@@ -46,8 +45,8 @@ private int speed = 200;
 private float[] cellX;
 private float[] cellY;
 
-    /*public void Dijsktra() {
-        boolean targetReached = false;
+    public void Dijsktra() {
+        /*boolean targetReached = false;
         Position theoricPosition = playerCurrentPosition;
         Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
         while(!targetReached)
@@ -66,7 +65,8 @@ private float[] cellY;
 
             }
         }
-    }*/
+         */
+    }
 
 
     public interface SoundPlayer{
