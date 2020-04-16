@@ -71,6 +71,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private int TouchWall;
     private int Reset;
     private float BUTTON_SIZE;
+    private int lengthMusic;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -414,5 +415,20 @@ public class Controller implements IGameController, Model.SoundPlayer {
     public void playReset() {
         soundPool.stop(Reset);
         soundPool.play(Reset, 5f, 5f, 0, 0, 0);
+    }
+
+    public void stopMusic() {
+        mediaPlayer.pause();
+        lengthMusic = mediaPlayer.getCurrentPosition();
+        soundPool.stop(Move);
+        soundPool.stop(AllTargetsCollected);
+        soundPool.stop(TouchWall);
+        soundPool.stop(Reset);
+        soundPool.stop(TargetCollected);
+    }
+
+    public void resumeMusic() {
+        mediaPlayer.seekTo(lengthMusic);
+        mediaPlayer.start();
     }
 }

@@ -10,10 +10,24 @@ import es.uji.vj1229.framework.IGameController;
 
 public class MainActivity extends GameActivity{
 
+    Controller controller;
     @Override
     protected IGameController buildGameController() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        return new Controller(displayMetrics.widthPixels, displayMetrics.heightPixels, getApplicationContext());
+        controller = new Controller(displayMetrics.widthPixels, displayMetrics.heightPixels, getApplicationContext());
+        return controller;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        controller.stopMusic();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        controller.resumeMusic();
     }
 }
