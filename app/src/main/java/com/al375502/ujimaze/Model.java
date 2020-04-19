@@ -8,6 +8,7 @@ import android.util.Range;
 
 import com.al375502.ujimaze.mazeUtils.Direction;
 import com.al375502.ujimaze.mazeUtils.Maze;
+import com.al375502.ujimaze.mazeUtils.Node;
 import com.al375502.ujimaze.mazeUtils.Position;
 
 import java.lang.reflect.Array;
@@ -18,20 +19,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 public class Model {
-public boolean gameOver = false;
-public boolean playerIsMoving = false;
-public float playerCurrentPositionX;
-public float playerCurrentPositionY;
-public Position playerCurrentPosition;
-public Position playerNextPosition = new Position(0,0);
-public Position[] targets;
+    public boolean gameOver = false;
+    public boolean playerIsMoving = false;
+    public float playerCurrentPositionX;
+    public float playerCurrentPositionY;
+    public Position playerCurrentPosition;
+    public Position playerNextPosition = new Position(0,0);
+    public Position[] targets;
 
-public int numTargets;
-public boolean[] targetsCollected;
+    public int numTargets;
+    public boolean[] targetsCollected;
 
     private Stack<Position> playerPreviousPosition = new Stack<>();
-public int movementsCount = 0;
-public Integer[] targetsCollectedMovement;
+    public int movementsCount = 0;
+    public Integer[] targetsCollectedMovement;
     public Position[] enemies;
     public Direction[] enemieDirectionToGo;
     public Position[] enemieCurrentPosition;
@@ -40,32 +41,83 @@ public Integer[] targetsCollectedMovement;
     public Position[]positionToChange;
     public boolean[] isChanging;
 
-public int currentMazeIndex = 0;
-private int speed = 200;
-private float[] cellX;
-private float[] cellY;
+    public int currentMazeIndex = 0;
+    private int speed = 200;
+    private float[] cellX;
+    private float[] cellY;
 
+    //Use this for dijsktra
+    public ArrayList<Node> Nodes = new ArrayList<>();
+    public ArrayList<Node> targetsNodes = new ArrayList<>();
     public void Dijsktra() {
-        /*boolean targetReached = false;
-        Position theoricPosition = playerCurrentPosition;
+        boolean alltargetsreached = false;
+        Nodes.add(new Node(0,playerCurrentPosition,null)); //Node origin
         Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-        while(!targetReached)
+
+        while(!alltargetsreached)
         {
-            Position[] newPositions = {theoricPosition, theoricPosition, theoricPosition, theoricPosition};
-            int[] cont = new int[];
-            for(int i = 0; i < 4; i++)
-            {
-                while(!Levels.mazes[getCurrentMaze()].hasWall(newPositions[i], directions[i]))
-                {
-                    cont[i]++;
-                    newPositions[i].setRow(newPositions[i].getRow()+directions[i].getRow());
-                    newPositions[i].setCol(newPositions[i].getCol()+directions[i].getCol());
-
+            Node actualNode = new Node(100,new Position(-1,-1),null); //Un nodo que siempre va a tener un peso mayor al de todos los demas como auxiliar
+            int x = 0;
+            for (Node n:Nodes) {
+                if(!n.Known && actualNode.peso > n.peso) actualNode = n;  //si no conozco el camino optimo para llegar a un nodo y su peso es el menor de todos ya conozco su camino optimo
+                else x++;
+            }
+            actualNode.Known = true;
+            if(Nodes.size()  == x) alltargetsreached = true;  //si los he visto todos paro
+            if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
+            for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
+                if(t == actualNode.position) {
+                    targetsNodes.add(actualNode);
+                    Log.d("target", "Dijsktra: He encontrado la puta moneda :D");
                 }
+            }
+            if(targetsNodes.size() == targets.length) alltargetsreached = true; //si he encontrado todos los objetivos con camino optimo tambien puedo parar
+            else if (!alltargetsreached){
+                int cont;
+                Node aux;
+                for(int i = 0; i < 4; i++)
+                {
+                    cont = 0;
+                    aux = actualNode;
+                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux.position, directions[i]))
+                    {
+                        cont++;
+                        aux.position.setRow(aux.position.getRow()+directions[i].getRow());
+                        aux.position.setCol(aux.position.getCol()+directions[i].getCol());
+                    }
+                    boolean add = true;
+                    if(aux.position != actualNode.position){ // si no me he movido no me añado
+                        for (Node n :Nodes) {
+                            if (aux.position == n.position) { // si me he movido pero ya conocia el nodo destino, cambio su peso si mi camino es mas optimo
+                                add = false;
+                                if (aux.peso + cont < n.peso) { // da igual que vuelva a mi nodo padre, osea que retroceda porque comprobara que el camino que me ha costado llegar es mayor asique no modificara anda
+                                    n.Path = actualNode;
+                                    n.peso = aux.peso + cont;
 
+                                }
+                            }
+                        }
+                        if(add){
+                            //actualNode.Hijo.add(new Node(cont, aux.position, actualNode));
+                            Nodes.add(new Node(cont, aux.position, actualNode)); //si no me conocian me añado
+                        }
+                    }
+                }
             }
         }
-         */
+
+        Log.d("algo", "Dijsktra: Salgo");
+        //if(targetsNodes.size() < 1) Log.d("ALGORITMO", "Dijsktra: No llego al final");
+        for (Node n:targetsNodes) {                                                   // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
+            Log.d("algo", "Dijsktra:" + n.position);
+            Node aux = n;
+            while(aux.Path !=null){
+                Log.d("algo", "Dijsktra" + aux.Path.position);
+                aux = aux.Path;
+            }
+        }
+
+
     }
 
 
@@ -111,6 +163,8 @@ private float[] cellY;
         }
         positionToChange = enemieCurrentPosition;
 
+        Dijsktra();
+
     }
 
     public void touchResetButton()
@@ -131,6 +185,7 @@ public void resetMaze(){
     targetsCollectedMovement = new Integer[numTargets];
     targetsCollected = new boolean[numTargets];
     for(int i=0;i<numTargets;i++) targetsCollected[i]=false;
+    Dijsktra();
 }
 
     private void defineEnemieDirection(int i) {
