@@ -46,6 +46,10 @@ public class Model {
     private float[] cellX;
     private float[] cellY;
 
+
+
+    //Flipo, solo funciona el nivel 2 con esto puesto parece que llega a un bucle infinito en el while que comprueba los muros, como que nunca detecta uno alñguna vez y se queda ahi
+    //huele a bucle infinito
     //Use this for dijsktra
     public ArrayList<Node> Nodes = new ArrayList<>();
     public ArrayList<Node> targetsNodes = new ArrayList<>();
@@ -53,9 +57,10 @@ public class Model {
         boolean alltargetsreached = false;
         Nodes.add(new Node(0,playerCurrentPosition,null)); //Node origin
         Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-
+        int h = 10;
         while(!alltargetsreached)
         {
+            if(--h < 0) alltargetsreached = true; //movida por si aqui habia un while infinito
             Node actualNode = new Node(100,new Position(-1,-1),null); //Un nodo que siempre va a tener un peso mayor al de todos los demas como auxiliar
             int x = 0;
             for (Node n:Nodes) {
@@ -64,13 +69,13 @@ public class Model {
             }
             actualNode.Known = true;
             if(Nodes.size()  == x) alltargetsreached = true;  //si los he visto todos paro
-            if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
-            for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
+            //if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
+            /*for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
                 if(t == actualNode.position) {
                     targetsNodes.add(actualNode);
                     Log.d("target", "Dijsktra: He encontrado la puta moneda :D");
                 }
-            }
+            }*/
             if(targetsNodes.size() == targets.length) alltargetsreached = true; //si he encontrado todos los objetivos con camino optimo tambien puedo parar
             else if (!alltargetsreached){
                 int cont;
@@ -79,7 +84,8 @@ public class Model {
                 {
                     cont = 0;
                     aux = actualNode;
-                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux.position, directions[i]))
+                    int g = 10;
+                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux.position, directions[i]) || --g < 0 )
                     {
                         cont++;
                         aux.position.setRow(aux.position.getRow()+directions[i].getRow());
@@ -93,7 +99,6 @@ public class Model {
                                 if (aux.peso + cont < n.peso) { // da igual que vuelva a mi nodo padre, osea que retroceda porque comprobara que el camino que me ha costado llegar es mayor asique no modificara anda
                                     n.Path = actualNode;
                                     n.peso = aux.peso + cont;
-
                                 }
                             }
                         }
@@ -108,14 +113,14 @@ public class Model {
 
         Log.d("algo", "Dijsktra: Salgo");
         //if(targetsNodes.size() < 1) Log.d("ALGORITMO", "Dijsktra: No llego al final");
-        for (Node n:targetsNodes) {                                                   // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
+        /*for (Node n:targetsNodes) {                                                   // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
             Log.d("algo", "Dijsktra:" + n.position);
             Node aux = n;
             while(aux.Path !=null){
                 Log.d("algo", "Dijsktra" + aux.Path.position);
                 aux = aux.Path;
             }
-        }
+        }*/
 
 
     }

@@ -190,7 +190,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
 
     private void PaintDijsktra() {
 
-        
+
     }
 
     private void animatePlayerTargetEnemie(float deltaTime) {
