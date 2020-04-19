@@ -132,6 +132,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
                     if(!model.playerIsMoving && !model.gameOver) model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
                    // model.Dijsktra();
+                    PaintDijsktra();
                 } else {
                     if(!model.playerIsMoving && !model.gameOver) {
                         float y1 = event.y, x1 = event.x;
@@ -185,6 +186,11 @@ public class Controller implements IGameController, Model.SoundPlayer {
             animatePlayerTargetEnemie(deltaTime);
             model.moveEnemies(deltaTime);
         }
+    }
+
+    private void PaintDijsktra() {
+
+        
     }
 
     private void animatePlayerTargetEnemie(float deltaTime) {
