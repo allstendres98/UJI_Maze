@@ -57,10 +57,10 @@ public class Model {
         boolean alltargetsreached = false;
         Nodes.add(new Node(0,playerCurrentPosition,null)); //Node origin
         Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-        int h = 10;
+        //int h = 10;
         while(!alltargetsreached)
         {
-            if(--h < 0) alltargetsreached = true; //movida por si aqui habia un while infinito
+            //if(--h < 0) alltargetsreached = true; //movida por si aqui habia un while infinito
             Node actualNode = new Node(100,new Position(-1,-1),null); //Un nodo que siempre va a tener un peso mayor al de todos los demas como auxiliar
             int x = 0;
             for (Node n:Nodes) {
@@ -70,12 +70,12 @@ public class Model {
             actualNode.Known = true;
             if(Nodes.size()  == x) alltargetsreached = true;  //si los he visto todos paro
             //if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
-            /*for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
+            for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
                 if(t == actualNode.position) {
                     targetsNodes.add(actualNode);
                     Log.d("target", "Dijsktra: He encontrado la puta moneda :D");
                 }
-            }*/
+            }
             if(targetsNodes.size() == targets.length) alltargetsreached = true; //si he encontrado todos los objetivos con camino optimo tambien puedo parar
             else if (!alltargetsreached){
                 int cont;
@@ -84,8 +84,8 @@ public class Model {
                 {
                     cont = 0;
                     aux = actualNode;
-                    int g = 10;
-                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux.position, directions[i]) || --g < 0 )
+                    //int g = 10;
+                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux.position, directions[i]))
                     {
                         cont++;
                         aux.position.setRow(aux.position.getRow()+directions[i].getRow());
@@ -104,7 +104,7 @@ public class Model {
                         }
                         if(add){
                             //actualNode.Hijo.add(new Node(cont, aux.position, actualNode));
-                            Nodes.add(new Node(cont, aux.position, actualNode)); //si no me conocian me añado
+                            Nodes.add(new Node(actualNode.peso + cont, aux.position, actualNode)); //si no me conocian me añado
                         }
                     }
                 }
