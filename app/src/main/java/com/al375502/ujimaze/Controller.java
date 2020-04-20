@@ -22,6 +22,7 @@ import com.al375502.ujimaze.mazeUtils.Position;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +76,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private int lengthMusic;
 
     private boolean painthelp = false;
+    private ArrayList<Integer> colorHelp;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -96,6 +98,11 @@ public class Controller implements IGameController, Model.SoundPlayer {
         prepareMediaPlayer();
         model = new Model(cellX,cellY,this, mediaPlayer);
         Assets.createGameOverAsset(context,playerSide);
+        ArrayList<Integer> colorHelp = new ArrayList();
+        colorHelp.add(0xff0000);
+        colorHelp.add(0x00ff00);
+        colorHelp.add(0xff00ff);
+        colorHelp.add(0x0000ff);
     }
 
     private void defineEnemieAnimationAssets() {
@@ -128,11 +135,12 @@ public class Controller implements IGameController, Model.SoundPlayer {
         for(TouchHandler.TouchEvent event : touchEvents) {
             if (event.type == TouchHandler.TouchType.TOUCH_UP) {
                 if (xreset <= event.x && event.x <= xreset + BUTTON_SIZE && yreset <= event.y && event.y <= yreset + BUTTON_SIZE) {
+                    painthelp = false;
                     if(!model.gameOver) model.touchResetButton();
                     else{model.gameOver = false; model.currentMazeIndex = -1; model.moveNextMaze();}
                 }
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
-                    if(!model.playerIsMoving && !model.gameOver) model.goToPreviousPosition();
+                    if(!model.playerIsMoving && !model.gameOver) model.goToPreviousPosition(); painthelp = false;
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
                     if(!model.playerIsMoving && !model.gameOver) {
                         model.Dijsktra();
@@ -195,14 +203,16 @@ public class Controller implements IGameController, Model.SoundPlayer {
     }
 
     private void PaintDijsktra() {
-        for (Node n: model.targetsNodes) {
+        int x = playerSide/20;
+        for (int j = 0; j < model.targetsNodes.size(); j++) {
+            x +=x;
             boolean paintme = true;
-            for(int i= 0; i < model.numTargets; i++){
-                if(n.getPosition().equals(model.targets[i]) && model.targetsCollected[i]) paintme = false;
+            for(int i= 0; i < model.targets.length; i++){
+                if(model.targetsNodes.get(j).getPosition().equals(model.targets[i]) && model.targetsCollected[i]) paintme = false;
             }
-            Node aux = new Node(n.getPeso(), n.getPosition(), n);
+            Node aux = new Node(model.targetsNodes.get(j).getPeso(), model.targetsNodes.get(j).getPosition(), model.targetsNodes.get(j));
             while(paintme && aux.getPath() !=null){
-                graphics.drawLine(cellX[aux.getPosition().getCol()] + playerSide/2, cellY[aux.getPosition().getRow()] + playerSide/2, cellX[aux.getPath().getPosition().getCol()] + playerSide/2, cellY[aux.getPath().getPosition().getRow()] + playerSide/2, lineWidth, SUBLINE_COLOR);
+                graphics.drawLine(cellX[aux.getPosition().getCol()] + playerSide/2 + x, cellY[aux.getPosition().getRow()] + playerSide/2 + x, cellX[aux.getPath().getPosition().getCol()] + playerSide/2 + x, cellY[aux.getPath().getPosition().getRow()] + playerSide/2 + x, lineWidth, colorHelp.get(j));
                 aux = aux.getPath();
             }
         }
