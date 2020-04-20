@@ -1,7 +1,6 @@
 package com.al375502.ujimaze;
 
 import android.media.MediaPlayer;
-import android.util.Log;
 import android.util.Range;
 
 import com.al375502.ujimaze.mazeUtils.Direction;
@@ -177,7 +176,6 @@ public class Model {
             playerCurrentPosition = playerPreviousPosition.pop();
             playerCurrentPositionX = cellX[playerCurrentPosition.getCol()];
             playerCurrentPositionY = cellY[playerCurrentPosition.getRow()];
-            Log.d("cell","x: " + playerCurrentPosition.getCol() + " y: " + playerCurrentPosition.getRow());
         }
     }
 
