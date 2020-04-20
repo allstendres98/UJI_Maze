@@ -1,31 +1,17 @@
 package com.al375502.ujimaze;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.media.SoundPool.Builder;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.util.Log;
 
 import com.al375502.ujimaze.mazeUtils.Direction;
 import com.al375502.ujimaze.mazeUtils.Maze;
 import com.al375502.ujimaze.mazeUtils.Node;
-import com.al375502.ujimaze.mazeUtils.Position;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import es.uji.vj1229.framework.AnimatedBitmap;
 import es.uji.vj1229.framework.Graphics;
@@ -37,20 +23,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private static final float LINEWIDTH_FRACTION = 0.01f;
     private static final float CELL_FRACTION = (1 - 2 * MARGIN_FRACTION - 2 * LINEWIDTH_FRACTION)/7;
     private static final int BACKGROUND_COLOR = 0xffb8b8b8;
-    private static final int LINE_COLOR = 0xff000000;
-    private static final int SUBLINE_COLOR = 0xffb8b8b8;
-
-    private AnimatedBitmap playerUP;
-    private AnimatedBitmap playerDOWN;
-    private AnimatedBitmap playerLEFT;
-    private AnimatedBitmap playerRIGHT;
-
-    private AnimatedBitmap targetAnimated;
-
-    private AnimatedBitmap enemieUP;
-    private AnimatedBitmap enemieDOWN;
-    private AnimatedBitmap enemieLEFT;
-    private AnimatedBitmap enemieRIGHT;
 
     public int playerSide;
     public int width, height;
@@ -61,10 +33,19 @@ public class Controller implements IGameController, Model.SoundPlayer {
     public float xreset, yreset, xundo, yundo, xhelp, yhelp;
     public float[] cellX, cellY;
     public int lineWidth;
-    float x0 = 0, y0 = 0;
-    boolean tocando = false;
-    Direction directionToGo;
-    //Music
+
+    private AnimatedBitmap playerUP;
+    private AnimatedBitmap playerDOWN;
+    private AnimatedBitmap playerLEFT;
+    private AnimatedBitmap playerRIGHT;
+    private AnimatedBitmap targetAnimated;
+    private AnimatedBitmap enemieUP;
+    private AnimatedBitmap enemieDOWN;
+    private AnimatedBitmap enemieLEFT;
+    private AnimatedBitmap enemieRIGHT;
+    private float x0 = 0, y0 = 0;
+    private boolean tocando = false;
+    private Direction directionToGo;
     private SoundPool soundPool;
     private MediaPlayer mediaPlayer;
     private int Move;
@@ -74,7 +55,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private int Reset;
     private float BUTTON_SIZE;
     private int lengthMusic;
-
     private boolean painthelp = false;
     private List<Integer> colorHelp;
 
@@ -150,7 +130,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 } else {
                     if(!model.playerIsMoving && !model.gameOver) {
                         float y1 = event.y, x1 = event.x;
-                        Log.d("pressed", "x0 - x1: " + Math.abs(x0 - x1) + " y0 - y1: " + Math.abs(y0 - y1));
                         if(Math.abs(x0 - x1) > 80f || Math.abs(y0 - y1) > 80f){
                             painthelp = false;
                             if (x0 < x1 && y0 < y1) {
@@ -178,7 +157,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
                             }
                             if(directionToGo!= null) model.calculateNextPosition(directionToGo);
                         }
-
                     }
                 }
                 tocando = false;
@@ -191,10 +169,8 @@ public class Controller implements IGameController, Model.SoundPlayer {
                     tocando=true;
                     x0 = event.x;
                     y0 = event.y;
-                    //Log.d("pressed", "x0: " + x0 + " y0: " + y0);
                 }
             }
-
         }
         if(!model.gameOver) {
             if (model.playerIsMoving) model.startMovingDirection(directionToGo, deltaTime);
@@ -238,7 +214,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
         drawTargets();
         drawEnemies();
         if(painthelp) PaintDijsktra();
-
         return graphics.getFrameBuffer();
     }
 

@@ -1,9 +1,6 @@
 package com.al375502.ujimaze.mazeUtils;
 
-import java.util.ArrayList;
-
 public class Node {
-    //public ArrayList<Node> Hijo = new ArrayList<>();
     private int peso;
     private Position position;
     private boolean Known;
