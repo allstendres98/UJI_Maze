@@ -71,7 +71,7 @@ public class Model {
             if(Nodes.size()  == x) alltargetsreached = true;  //si los he visto todos paro
             //if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
             for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
-                if(t == actualNode.getPosition()) {
+                if(t.equals(actualNode.getPosition())) {
                     targetsNodes.add(actualNode);
                     Log.d("target", "Dijsktra: He encontrado la puta moneda :D");
                 }
@@ -112,14 +112,18 @@ public class Model {
         }
 
         Log.d("algo", "Dijsktra: Salgo");
-        //if(targetsNodes.size() < 1) Log.d("ALGORITMO", "Dijsktra: No llego al final");
-        /*for (Node n:targetsNodes) {                                                   // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
-            Log.d("algo", "Dijsktra:" + n.position);
-            Node aux = n;
-            while(aux.Path !=null){
-                Log.d("algo", "Dijsktra" + aux.Path.position);
-                aux = aux.Path;
+        if(targetsNodes.size() < 1) Log.d("ALGORITMO", "Dijsktra: No llego al final");
+        for (Node n:targetsNodes) {                                                   // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
+            //Log.d("xd", "Dijsktra:" + n.getPosition());
+            Node aux = new Node(n.getPeso(), n.getPosition(), n);
+            while(aux.getPath() !=null){
+                Log.d("xd", "Dijsktra" + aux.getPath().getPosition());
+                aux = aux.getPath();
             }
+        }
+        /*for(Node n: Nodes)
+        {
+            Log.d("xd", "Dijsktra:" + n.getPosition());
         }*/
 
 
