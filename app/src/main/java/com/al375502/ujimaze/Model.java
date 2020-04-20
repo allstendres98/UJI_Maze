@@ -41,7 +41,7 @@ public class Model {
     public Position[]positionToChange;
     public boolean[] isChanging;
 
-    public int currentMazeIndex = 0;
+    public int currentMazeIndex = 4;
     private int speed = 200;
     private float[] cellX;
     private float[] cellY;
@@ -54,6 +54,8 @@ public class Model {
     public ArrayList<Node> Nodes = new ArrayList<>();
     public ArrayList<Node> targetsNodes = new ArrayList<>();
     public void Dijsktra() {
+        Nodes.clear();
+        targetsNodes.clear();
         boolean alltargetsreached = false;
         Nodes.add(new Node(0,playerCurrentPosition,null)); //Node origin
         Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
@@ -70,14 +72,20 @@ public class Model {
             actualNode.setKnown(true);
             if(Nodes.size()  == x) alltargetsreached = true;  //si los he visto todos paro
             //if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
+            /*for(int i = 0; i < numTargets; i++){
+                if(!targetsCollected[i] && targets[i].equals(actualNode.getPosition()) ) {
+                    targetsNodes.add(actualNode);
+                    Log.d("target", "Dijsktra: He encontrado la moneda :D");
+                }
+            }*/
             for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
                 if(t.equals(actualNode.getPosition())) {
                     targetsNodes.add(actualNode);
-                    Log.d("target", "Dijsktra: He encontrado la puta moneda :D");
+                    Log.d("target", "Dijsktra: He encontrado la moneda :D");
                 }
             }
-            if(targetsNodes.size() == targets.length) alltargetsreached = true; //si he encontrado todos los objetivos con camino optimo tambien puedo parar
-            else if (!alltargetsreached){
+            //if(targetsNodes.size() == numTargets) alltargetsreached = true; //si he encontrado todos los objetivos con camino optimo tambien puedo parar
+            if (!alltargetsreached){
                 int cont;
                 Position aux;
                 for(int i = 0; i < 4; i++)
@@ -112,9 +120,8 @@ public class Model {
         }
 
         Log.d("algo", "Dijsktra: Salgo");
-        if(targetsNodes.size() < 1) Log.d("ALGORITMO", "Dijsktra: No llego al final");
-        for (Node n:targetsNodes) {                                                   // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
-            //Log.d("xd", "Dijsktra:" + n.getPosition());
+        if(targetsNodes.size() < 1) Log.d("ALGORITMO", "Dijsktra: No hay monedas :(");
+        for (Node n:targetsNodes) {            // intento sacar el camino que me hadado pero peta porque target Nodes esta vacio al parecer
             Node aux = new Node(n.getPeso(), n.getPosition(), n);
             while(aux.getPath() !=null){
                 Log.d("xd", "Dijsktra" + aux.getPath().getPosition());
@@ -125,8 +132,6 @@ public class Model {
         {
             Log.d("xd", "Dijsktra:" + n.getPosition());
         }*/
-
-
     }
 
 

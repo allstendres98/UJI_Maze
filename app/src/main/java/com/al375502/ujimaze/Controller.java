@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.al375502.ujimaze.mazeUtils.Direction;
 import com.al375502.ujimaze.mazeUtils.Maze;
+import com.al375502.ujimaze.mazeUtils.Node;
 import com.al375502.ujimaze.mazeUtils.Position;
 
 import java.io.FileInputStream;
@@ -72,6 +73,8 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private int Reset;
     private float BUTTON_SIZE;
     private int lengthMusic;
+
+    private boolean painthelp = false;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -131,13 +134,14 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
                     if(!model.playerIsMoving && !model.gameOver) model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
-                   // model.Dijsktra();
-                    PaintDijsktra();
+                    model.Dijsktra();
+                    painthelp = !painthelp;
                 } else {
                     if(!model.playerIsMoving && !model.gameOver) {
                         float y1 = event.y, x1 = event.x;
                         Log.d("pressed", "x0 - x1: " + Math.abs(x0 - x1) + " y0 - y1: " + Math.abs(y0 - y1));
                         if(Math.abs(x0 - x1) > 80f || Math.abs(y0 - y1) > 80f){
+                            painthelp = false;
                             if (x0 < x1 && y0 < y1) {
                                 if (Math.abs(x0 - x1) > Math.abs(y0 - y1))
                                     directionToGo = Direction.RIGHT;
@@ -189,8 +193,17 @@ public class Controller implements IGameController, Model.SoundPlayer {
     }
 
     private void PaintDijsktra() {
-
-
+        for (Node n: model.targetsNodes) {
+            boolean paintme = true;
+            for(int i= 0; i < model.numTargets; i++){
+                if(n.getPosition().equals(model.targets[i]) && model.targetsCollected[i]) paintme = false;
+            }
+            Node aux = new Node(n.getPeso(), n.getPosition(), n);
+            while(paintme && aux.getPath() !=null){
+                graphics.drawLine(cellX[aux.getPosition().getCol()] + playerSide/2, cellY[aux.getPosition().getRow()] + playerSide/2, cellX[aux.getPath().getPosition().getCol()] + playerSide/2, cellY[aux.getPath().getPosition().getRow()] + playerSide/2, lineWidth, SUBLINE_COLOR);
+                aux = aux.getPath();
+            }
+        }
     }
 
     private void animatePlayerTargetEnemie(float deltaTime) {
@@ -213,6 +226,8 @@ public class Controller implements IGameController, Model.SoundPlayer {
         drawPlayer();
         drawTargets();
         drawEnemies();
+        if(painthelp) PaintDijsktra();
+
         return graphics.getFrameBuffer();
     }
 
