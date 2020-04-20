@@ -83,19 +83,18 @@ public class Model {
                 for(int i = 0; i < 4; i++)
                 {
                     cont = 0;
-                    aux = actualNode.getPosition();
+                    aux = new Position(actualNode.getPosition());
                     //int g = 10;
                     while(!Levels.mazes[getCurrentMaze()].hasWall(aux, directions[i]))
                     {
-                        Log.d("algo1", " aux: " + aux + ", actualNodePos: " + actualNode.getPosition());
                         cont++;
-                        aux.setRow(aux.getRow()+directions[i].getRow());
-                        aux.setCol(aux.getCol()+directions[i].getCol());
+                        aux.move(directions[i]);
                     }
+                    Log.d("algo1", " aux: " + aux + ", actualNodePos: " + actualNode.getPosition());
                     boolean add = true;
-                    if(aux != actualNode.getPosition()){ // si no me he movido no me añado
+                    if(!aux.equals(actualNode.getPosition())){ // si no me he movido no me añado
                         for (Node n :Nodes) {
-                            if (aux == n.getPosition()) { // si me he movido pero ya conocia el nodo destino, cambio su peso si mi camino es mas optimo
+                            if (aux.equals(n.getPosition())) { // si me he movido pero ya conocia el nodo destino, cambio su peso si mi camino es mas optimo
                                 add = false;
                                 if (actualNode.getPeso() + cont < n.getPeso()) { // da igual que vuelva a mi nodo padre, osea que retroceda porque comprobara que el camino que me ha costado llegar es mayor asique no modificara anda
                                     n.setPath(actualNode);
