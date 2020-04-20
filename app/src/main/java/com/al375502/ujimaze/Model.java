@@ -49,7 +49,7 @@ public class Model {
 
 
     //Flipo, solo funciona el nivel 2 con esto puesto parece que llega a un bucle infinito en el while que comprueba los muros, como que nunca detecta uno alñguna vez y se queda ahi
-    //huele a bucle infinito
+    //huele a bucle infinito (o no, porque lo he comprobado y no parece, no se aque huele)
     //Use this for dijsktra
     public ArrayList<Node> Nodes = new ArrayList<>();
     public ArrayList<Node> targetsNodes = new ArrayList<>();
@@ -64,14 +64,14 @@ public class Model {
             Node actualNode = new Node(100,new Position(-1,-1),null); //Un nodo que siempre va a tener un peso mayor al de todos los demas como auxiliar
             int x = 0;
             for (Node n:Nodes) {
-                if(!n.Known && actualNode.peso > n.peso) actualNode = n;  //si no conozco el camino optimo para llegar a un nodo y su peso es el menor de todos ya conozco su camino optimo
+                if(!n.isKnown() && actualNode.getPeso() > n.getPeso()) actualNode = n;  //si no conozco el camino optimo para llegar a un nodo y su peso es el menor de todos ya conozco su camino optimo
                 else x++;
             }
-            actualNode.Known = true;
+            actualNode.setKnown(true);
             if(Nodes.size()  == x) alltargetsreached = true;  //si los he visto todos paro
             //if(actualNode.position == new Position(0,2)) targetsNodes.add(actualNode); // una prueba que no va
             for (Position t:targets) { //comparo si el nodo que he hayado corresponde a un target y lo añado a un array aparte con el que los dibujare
-                if(t == actualNode.position) {
+                if(t == actualNode.getPosition()) {
                     targetsNodes.add(actualNode);
                     Log.d("target", "Dijsktra: He encontrado la puta moneda :D");
                 }
@@ -79,32 +79,33 @@ public class Model {
             if(targetsNodes.size() == targets.length) alltargetsreached = true; //si he encontrado todos los objetivos con camino optimo tambien puedo parar
             else if (!alltargetsreached){
                 int cont;
-                Node aux;
+                Position aux;
                 for(int i = 0; i < 4; i++)
                 {
                     cont = 0;
-                    aux = actualNode;
+                    aux = actualNode.getPosition();
                     //int g = 10;
-                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux.position, directions[i]))
+                    while(!Levels.mazes[getCurrentMaze()].hasWall(aux, directions[i]))
                     {
+                        Log.d("algo1", " aux: " + aux + ", actualNodePos: " + actualNode.getPosition());
                         cont++;
-                        aux.position.setRow(aux.position.getRow()+directions[i].getRow());
-                        aux.position.setCol(aux.position.getCol()+directions[i].getCol());
+                        aux.setRow(aux.getRow()+directions[i].getRow());
+                        aux.setCol(aux.getCol()+directions[i].getCol());
                     }
                     boolean add = true;
-                    if(aux.position != actualNode.position){ // si no me he movido no me añado
+                    if(aux != actualNode.getPosition()){ // si no me he movido no me añado
                         for (Node n :Nodes) {
-                            if (aux.position == n.position) { // si me he movido pero ya conocia el nodo destino, cambio su peso si mi camino es mas optimo
+                            if (aux == n.getPosition()) { // si me he movido pero ya conocia el nodo destino, cambio su peso si mi camino es mas optimo
                                 add = false;
-                                if (aux.peso + cont < n.peso) { // da igual que vuelva a mi nodo padre, osea que retroceda porque comprobara que el camino que me ha costado llegar es mayor asique no modificara anda
-                                    n.Path = actualNode;
-                                    n.peso = aux.peso + cont;
+                                if (actualNode.getPeso() + cont < n.getPeso()) { // da igual que vuelva a mi nodo padre, osea que retroceda porque comprobara que el camino que me ha costado llegar es mayor asique no modificara anda
+                                    n.setPath(actualNode);
+                                    n.setPeso(actualNode.getPeso() + cont);
                                 }
                             }
                         }
                         if(add){
                             //actualNode.Hijo.add(new Node(cont, aux.position, actualNode));
-                            Nodes.add(new Node(actualNode.peso + cont, aux.position, actualNode)); //si no me conocian me añado
+                            Nodes.add(new Node(actualNode.getPeso() + cont, aux, actualNode)); //si no me conocian me añado
                         }
                     }
                 }
