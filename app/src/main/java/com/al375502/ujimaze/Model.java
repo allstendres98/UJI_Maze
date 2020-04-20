@@ -41,7 +41,7 @@ public class Model {
     public Position[]positionToChange;
     public boolean[] isChanging;
 
-    public int currentMazeIndex = 0;
+    public int currentMazeIndex = 4;
     private int speed = 200;
     private float[] cellX;
     private float[] cellY;

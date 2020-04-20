@@ -76,7 +76,7 @@ public class Controller implements IGameController, Model.SoundPlayer {
     private int lengthMusic;
 
     private boolean painthelp = false;
-    private ArrayList<Integer> colorHelp;
+    private List<Integer> colorHelp;
 
     public Controller(int width, int height, Context context) {
         this.width = width;
@@ -98,11 +98,12 @@ public class Controller implements IGameController, Model.SoundPlayer {
         prepareMediaPlayer();
         model = new Model(cellX,cellY,this, mediaPlayer);
         Assets.createGameOverAsset(context,playerSide);
-        ArrayList<Integer> colorHelp = new ArrayList();
-        colorHelp.add(0xff0000);
-        colorHelp.add(0x00ff00);
-        colorHelp.add(0xff00ff);
-        colorHelp.add(0x0000ff);
+        colorHelp = new ArrayList();
+        colorHelp.add(0xffff0000);
+        colorHelp.add(0xff00ff00);
+        colorHelp.add(0xffff00ff);
+        colorHelp.add(0xff0000ff);
+        colorHelp.add(0xffffff00);
     }
 
     private void defineEnemieAnimationAssets() {
@@ -203,16 +204,14 @@ public class Controller implements IGameController, Model.SoundPlayer {
     }
 
     private void PaintDijsktra() {
-        int x = playerSide/20;
         for (int j = 0; j < model.targetsNodes.size(); j++) {
-            x +=x;
             boolean paintme = true;
             for(int i= 0; i < model.targets.length; i++){
                 if(model.targetsNodes.get(j).getPosition().equals(model.targets[i]) && model.targetsCollected[i]) paintme = false;
             }
             Node aux = new Node(model.targetsNodes.get(j).getPeso(), model.targetsNodes.get(j).getPosition(), model.targetsNodes.get(j));
             while(paintme && aux.getPath() !=null){
-                graphics.drawLine(cellX[aux.getPosition().getCol()] + playerSide/2 + x, cellY[aux.getPosition().getRow()] + playerSide/2 + x, cellX[aux.getPath().getPosition().getCol()] + playerSide/2 + x, cellY[aux.getPath().getPosition().getRow()] + playerSide/2 + x, lineWidth, colorHelp.get(j));
+                graphics.drawLine(cellX[aux.getPosition().getCol()] + playerSide/2, cellY[aux.getPosition().getRow()] + playerSide/2, cellX[aux.getPath().getPosition().getCol()] + playerSide/2, cellY[aux.getPath().getPosition().getRow()] + playerSide/2, lineWidth, colorHelp.get(j));
                 aux = aux.getPath();
             }
         }
@@ -306,30 +305,8 @@ public class Controller implements IGameController, Model.SoundPlayer {
         Maze maze = Levels.mazes[model.getCurrentMaze()];
         for(int i = 0; i < maze.getNRows(); i++)
             for(int j = maze.getNCols()-1; j >= 0; j--) {
-                /*graphics.drawLine(cellX[i], cellY[i], cellX[j], cellY[i], lineWidth, SUBLINE_COLOR);
-                graphics.drawLine(cellX[i], cellY[i], cellX[i], cellY[j], lineWidth, SUBLINE_COLOR);
-                graphics.drawLine(cellX[i], cellY[j], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);
-                graphics.drawLine(cellX[j], cellY[i], cellX[j], cellY[j], lineWidth, SUBLINE_COLOR);*/
-
                 graphics.drawBitmap(Assets.grass, cellX[i], cellY[j]);
             }
-
-        /*char[] row = maze.toString().toCharArray();
-        int cont = 0;
-        int aux = 0;
-        for(int i = 0; i < maze.toString().length(); i++,aux++)
-        {
-            if(Character.toString(row[i]).equals("-")){
-                graphics.drawLine(cellX[(aux-1)/2], cellY[cont/2], cellX[(aux+1)/2], cellY[cont/2], lineWidth, LINE_COLOR);
-            }
-            else if(Character.toString(row[i]).equals("|")){
-                graphics.drawLine(cellX[aux/2], cellY[(cont-1)/2], cellX[aux/2], cellY[(cont+1)/2], lineWidth, LINE_COLOR);
-            }
-            else if(Character.toString(row[i]).equals("\n")){
-                cont++;
-                aux = 0;
-            }
-        }*/
         char[] row = maze.toString().toCharArray();
         int toPaint = 0;
         int cont = 0;
@@ -392,15 +369,8 @@ public class Controller implements IGameController, Model.SoundPlayer {
                     cont++;
                     aux = 0;
                 }
-                //graphics.drawBitmap(Assets.wallsBitmaps[toPaint], cellX[Math.round(aux/2)], cellY[Math.round(cont/2)]);
-
-
             }
-
-
         }
-
-        ///GAMEOVER PANEL
         if(model.gameOver) graphics.drawBitmap(Assets.gameOver, width/2-width/3f, height/2+height/3.5f);
     }
 
