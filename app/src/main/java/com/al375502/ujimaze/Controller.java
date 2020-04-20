@@ -134,8 +134,10 @@ public class Controller implements IGameController, Model.SoundPlayer {
                 else if (xundo <= event.x && event.x <= xundo + BUTTON_SIZE && yundo <= event.y && event.y <= yundo + BUTTON_SIZE) {
                     if(!model.playerIsMoving && !model.gameOver) model.goToPreviousPosition();
                 } else if (xhelp <= event.x && event.x <= xhelp + BUTTON_SIZE && yhelp <= event.y && event.y <= yhelp + BUTTON_SIZE) {
-                    model.Dijsktra();
-                    painthelp = !painthelp;
+                    if(!model.playerIsMoving && !model.gameOver) {
+                        model.Dijsktra();
+                        painthelp = !painthelp;
+                    }
                 } else {
                     if(!model.playerIsMoving && !model.gameOver) {
                         float y1 = event.y, x1 = event.x;
