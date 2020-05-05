@@ -361,7 +361,6 @@ public class Controller implements IGameController, Model.SoundPlayer {
         AllTargetsCollected = soundPool.load(context, R.raw.all_targets_collected, 0);
         TouchWall = soundPool.load(context, R.raw.touch_wall, 0);
         Reset = soundPool.load(context, R.raw.reset, 0);
-        
     }
 
     @Override
